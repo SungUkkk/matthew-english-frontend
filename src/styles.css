@@ -148,14 +148,32 @@ body {
   }
 
   .detail-swipe-bar {
-    padding: 14px 16px 20px;
-    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    padding: 8px 12px 10px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    gap: 6px;
+  }
+
+  .detail-swipe-layout .detail-main {
+    padding-bottom: 88px;
+  }
+
+  .detail-swipe-nav {
+    gap: 10px;
   }
 
   .detail-swipe-btn {
-    width: 48px;
-    height: 48px;
-    font-size: 1.3rem;
+    width: 36px;
+    height: 36px;
+    font-size: 1.05rem;
+  }
+
+  .detail-swipe-dots {
+    gap: 5px;
+  }
+
+  .detail-swipe-dot {
+    width: 6px;
+    height: 6px;
   }
 
   .feed-header-actions {
