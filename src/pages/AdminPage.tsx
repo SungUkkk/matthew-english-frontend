@@ -21,6 +21,8 @@ const isValidYmd = (value: string): boolean => {
   );
 };
 
+type AdminGate = "loading" | "allowed" | "denied" | "error";
+
 export const AdminPage: React.FC = () => {
   const [title, setTitle] = useState("");
   const [studyDate, setStudyDate] = useState("");
@@ -28,23 +30,45 @@ export const AdminPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [allowed, setAllowed] = useState(true);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const host = window.location.hostname;
-    const isLocal =
-      host === "localhost" ||
-      host === "127.0.0.1" ||
-      host === "::1";
-    if (!isLocal) {
-      setAllowed(false);
-    }
-  }, []);
+  const [gate, setGate] = useState<AdminGate>("loading");
+  const [gateDetail, setGateDetail] = useState<string | null>(null);
 
   const apiBase =
     import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? "http://localhost:8000" : "");
   const postUrl = apiBase ? `${apiBase}/articles` : "/api/articles";
+  const accessUrl = apiBase ? `${apiBase}/admin/access` : "/api/admin/access";
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(accessUrl, { method: "GET" });
+        const data = (await res.json().catch(() => null)) as { allowed?: boolean } | null;
+        if (cancelled) return;
+        if (!res.ok) {
+          setGate("error");
+          setGateDetail(`서버 응답 오류 (${res.status})`);
+          return;
+        }
+        if (data?.allowed) {
+          setGate("allowed");
+        } else {
+          setGate("denied");
+          setGateDetail(
+            "백엔드에 ADMIN_ALLOWED_IPS 로 등록된 공인 IP에서만 접근할 수 있습니다.",
+          );
+        }
+      } catch {
+        if (!cancelled) {
+          setGate("error");
+          setGateDetail("API에 연결할 수 없습니다. VITE_API_URL 과 CORS 설정을 확인하세요.");
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [accessUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,12 +117,33 @@ export const AdminPage: React.FC = () => {
     }
   };
 
-  if (!allowed) {
+  if (gate === "loading") {
     return (
       <div className="admin-layout">
         <header className="admin-header">
           <h1>관리자 페이지</h1>
-          <p>이 페이지는 로컬 환경(내 PC)에서만 접근할 수 있습니다.</p>
+          <p>접근 권한 확인 중…</p>
+        </header>
+      </div>
+    );
+  }
+
+  if (gate === "denied" || gate === "error") {
+    return (
+      <div className="admin-layout">
+        <header className="admin-header">
+          <h1>관리자 페이지</h1>
+          <p>
+            {gate === "denied"
+              ? "이 환경에서는 관리자 기능을 사용할 수 없습니다."
+              : "접근 확인에 실패했습니다."}
+          </p>
+          {gateDetail && <p className="admin-message error">{gateDetail}</p>}
+          <p style={{ marginTop: "1rem", fontSize: "0.9rem", opacity: 0.85 }}>
+            운영 서버(Render) 백엔드 환경변수 <code>ADMIN_ALLOWED_IPS</code>에 본인 PC의 공인
+            IP(쉼표로 여러 개 가능)를 넣어 주세요. IP는 브라우저에서 &quot;what is my ip&quot;로
+            확인할 수 있습니다. IP가 바뀌면 환경변수도 갱신해야 합니다.
+          </p>
         </header>
       </div>
     );

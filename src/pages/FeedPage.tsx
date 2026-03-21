@@ -4,11 +4,14 @@ import { fetchArticles, formatStudyDate, type Article } from "../api";
 import { useTheme } from "../theme";
 import { useZoom } from "../zoom";
 
+const isProdApi = Boolean(import.meta.env.VITE_API_URL);
+
 export const FeedPage: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const { zoom, increase, decrease } = useZoom();
@@ -19,6 +22,8 @@ export const FeedPage: React.FC = () => {
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
+    setError(null);
     (async () => {
       try {
         const data = await fetchArticles();
@@ -29,11 +34,14 @@ export const FeedPage: React.FC = () => {
           const isNetworkError =
             msg.includes("fetch") ||
             msg.includes("Failed") ||
-            msg.includes("NetworkError");
+            msg.includes("NetworkError") ||
+            msg.includes("연결");
           setError(
-            isNetworkError
+            isNetworkError && !isProdApi
               ? "백엔드에 연결할 수 없습니다. 1) 터미널에서 backend 폴더로 이동 후 'uvicorn app.main:app --reload --port 8000' 실행 2) 프론트엔드(npm run dev) 재시작 후 새로고침"
-              : msg
+              : isNetworkError && isProdApi
+                ? "백엔드에 연결할 수 없습니다. Render 대시보드에서 Web Service가 Live인지, VITE_API_URL이 맞는지 확인한 뒤 다시 시도해 주세요."
+                : msg
           );
         }
       } finally {
@@ -43,7 +51,7 @@ export const FeedPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [loadAttempt]);
 
   useEffect(() => {
     if (loading) return;
@@ -78,6 +86,20 @@ export const FeedPage: React.FC = () => {
         </header>
         <main className="user-main">
           <div className="feed-error">{error}</div>
+          <div className="feed-error-actions">
+            <button
+              type="button"
+              className="feed-retry-btn"
+              onClick={() => setLoadAttempt((n) => n + 1)}
+            >
+              다시 시도
+            </button>
+            {isProdApi && (
+              <p className="feed-error-hint">
+                무료 플랜은 서버가 잠들면 첫 요청에 수십 초~1분 이상 걸릴 수 있습니다. 한 번 더 눌러 보세요.
+              </p>
+            )}
+          </div>
         </main>
       </div>
     );
@@ -136,7 +158,7 @@ export const FeedPage: React.FC = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="feed-search-input"
-            placeholder="원문 내용으로 기사 검색"
+            placeholder="목록 미리보기 범위에서 원문 검색"
           />
           {trimmedQuery && (
             <span className="feed-search-count">

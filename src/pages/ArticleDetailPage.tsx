@@ -93,8 +93,9 @@ export const ArticleDetailPage: React.FC = () => {
 
   const handleTouchEnd = () => {
     if (touchStartX === null) return;
-    if (touchDeltaX < -SWIPE_THRESHOLD && canGoPrev) goPrev();
-    else if (touchDeltaX > SWIPE_THRESHOLD && canGoNext) goNext();
+    // 왼쪽으로 밀면 다음 문장, 오른쪽으로 밀면 이전 문장 (모바일 카드 스와이프 관성)
+    if (touchDeltaX < -SWIPE_THRESHOLD && canGoNext) goNext();
+    else if (touchDeltaX > SWIPE_THRESHOLD && canGoPrev) goPrev();
     setTouchStartX(null);
     setTouchDeltaX(0);
   };

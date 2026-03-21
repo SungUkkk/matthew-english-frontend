@@ -1,0 +1,21 @@
+# Render Blueprint (선택)
+# - Dashboard에서 이 레포를 Blueprint로 연결한 경우: 빌드 시 아래 routes가 적용됩니다.
+# - Static Site를 수동으로만 만든 경우: Dashboard → Redirects/Rewrites 에서 동일 규칙을 직접 추가하세요.
+#   https://render.com/docs/redirects-rewrites
+#
+# React Router 등 SPA: 직접 URL·새로고침 시 /articles/112 같은 경로는 실제 파일이 없어 404가 나므로
+# 모든 경로를 index.html 로 rewrite 해 클라이언트 라우팅이 처리하게 합니다.
+
+services:
+  - type: web
+    name: matthew-english-frontend
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        sync: false

@@ -311,6 +311,37 @@ body {
   color: #f97373;
 }
 
+.feed-error-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.feed-retry-btn {
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--accent, #6366f1);
+  background: var(--accent, #6366f1);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.feed-retry-btn:hover {
+  filter: brightness(1.08);
+}
+
+.feed-error-hint {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  max-width: 28rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
 .feed-list {
   display: flex;
   flex-direction: column;
