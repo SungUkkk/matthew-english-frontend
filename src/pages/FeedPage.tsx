@@ -158,7 +158,7 @@ export const FeedPage: React.FC = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="feed-search-input"
-            placeholder="목록 미리보기 범위에서 원문 검색"
+            placeholder="원문 내용으로 기사 검색"
           />
           {trimmedQuery && (
             <span className="feed-search-count">
