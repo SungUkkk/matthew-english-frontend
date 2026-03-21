@@ -12,7 +12,6 @@ export const FeedPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [loadAttempt, setLoadAttempt] = useState(0);
-  const [loadingHint, setLoadingHint] = useState("");
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const { zoom, increase, decrease } = useZoom();
@@ -55,23 +54,6 @@ export const FeedPage: React.FC = () => {
   }, [loadAttempt]);
 
   useEffect(() => {
-    if (!loading || !isProdApi) {
-      setLoadingHint("");
-      return;
-    }
-    const t1 = window.setTimeout(() => {
-      setLoadingHint("서버 깨우는 중입니다. 잠시만 기다려 주세요...");
-    }, 8000);
-    const t2 = window.setTimeout(() => {
-      setLoadingHint("지연이 길면 아래 '다시 시도'를 눌러 재요청해 주세요.");
-    }, 17000);
-    return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-    };
-  }, [loading]);
-
-  useEffect(() => {
     if (loading) return;
     const stored = sessionStorage.getItem("feedScrollY");
     if (stored == null) return;
@@ -91,11 +73,6 @@ export const FeedPage: React.FC = () => {
         </header>
         <main className="user-main">
           <div className="feed-loading">로딩 중...</div>
-          {isProdApi && (
-            <div className="feed-loading-sub">
-              {loadingHint || "무료 서버 특성상 첫 요청은 다소 느릴 수 있습니다."}
-            </div>
-          )}
           {isProdApi && (
             <div className="feed-error-actions">
               <button
@@ -130,7 +107,7 @@ export const FeedPage: React.FC = () => {
             </button>
             {isProdApi && (
               <p className="feed-error-hint">
-                무료 플랜은 서버가 잠들면 첫 요청에 수십 초~1분 이상 걸릴 수 있습니다. 한 번 더 눌러 보세요.
+                지연이 길면 다시 시도를 눌러 재요청해 주세요.
               </p>
             )}
           </div>

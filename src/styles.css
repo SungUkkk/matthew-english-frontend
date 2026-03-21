@@ -325,14 +325,6 @@ body {
   color: var(--text-muted);
 }
 
-.feed-loading-sub {
-  margin-top: -12px;
-  margin-bottom: 8px;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 0.92rem;
-}
-
 .feed-error {
   color: #f97373;
 }
