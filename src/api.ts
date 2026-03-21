@@ -2,8 +2,8 @@
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
 /** Render 무료 티어 콜드 스타트 대비 (무제한 대기 방지) */
-const LIST_TIMEOUT_MS = 55_000;
-const DETAIL_TIMEOUT_MS = 55_000;
+const LIST_TIMEOUT_MS = 22_000;
+const DETAIL_TIMEOUT_MS = 25_000;
 
 async function fetchWithTimeout(
   input: string,
@@ -61,12 +61,12 @@ function isAbortError(e: unknown): boolean {
 export async function fetchArticles(): Promise<Article[]> {
   const url = articlesUrl();
   let lastErr: unknown = null;
-  for (let attempt = 0; attempt < 2; attempt++) {
+  for (let attempt = 0; attempt < 3; attempt++) {
     if (attempt > 0) {
-      await new Promise((r) => setTimeout(r, 1600));
+      await new Promise((r) => setTimeout(r, 1400 * attempt));
     }
     try {
-      const res = await fetchWithTimeout(url, {}, LIST_TIMEOUT_MS);
+      const res = await fetchWithTimeout(url, { cache: "no-store" }, LIST_TIMEOUT_MS);
       if (!res.ok) {
         throw new Error(`기사 목록을 불러오지 못했습니다. (${res.status})`);
       }
@@ -77,7 +77,7 @@ export async function fetchArticles(): Promise<Article[]> {
   }
   if (isAbortError(lastErr)) {
     throw new Error(
-      "서버 응답이 제한 시간 안에 오지 않았습니다. Render 무료 백엔드는 잠들었다가 첫 요청 때 1분 가까이 걸릴 수 있습니다. 잠시 후 다시 시도해 주세요."
+      "서버 응답이 지연되고 있습니다. Render 무료 백엔드는 슬립 후 첫 요청이 오래 걸릴 수 있어요. 잠시 후 다시 시도해 주세요."
     );
   }
   throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
@@ -86,7 +86,7 @@ export async function fetchArticles(): Promise<Article[]> {
 export async function fetchArticle(id: number): Promise<Article> {
   const url = articleDetailUrl(id);
   try {
-    const res = await fetchWithTimeout(url, {}, DETAIL_TIMEOUT_MS);
+    const res = await fetchWithTimeout(url, { cache: "no-store" }, DETAIL_TIMEOUT_MS);
     if (!res.ok) throw new Error("기사를 불러오지 못했습니다.");
     return res.json();
   } catch (e) {
