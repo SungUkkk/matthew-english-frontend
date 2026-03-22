@@ -6,12 +6,15 @@ import { useZoom } from "../zoom";
 
 const isProdApi = Boolean(import.meta.env.VITE_API_URL);
 
+const SCROLL_TOP_THRESHOLD = 8;
+
 export const FeedPage: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [loadAttempt, setLoadAttempt] = useState(0);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const { zoom, increase, decrease } = useZoom();
@@ -63,6 +66,19 @@ export const FeedPage: React.FC = () => {
     }
     sessionStorage.removeItem("feedScrollY");
   }, [loading, articles.length]);
+
+  useEffect(() => {
+    if (loading || error) {
+      setShowScrollTop(false);
+      return;
+    }
+    const onScroll = () => {
+      setShowScrollTop(window.scrollY > SCROLL_TOP_THRESHOLD);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [loading, error, articles.length]);
 
   if (loading) {
     return (
@@ -139,7 +155,7 @@ export const FeedPage: React.FC = () => {
               className="theme-toggle"
               onClick={toggleTheme}
             >
-              {theme === "light" ? "🌙 다크 모드" : "☀️ 라이트 모드"}
+              {theme === "light" ? "🌙 Dark" : "☀️ Light"}
             </button>
             <div className="zoom-controls" aria-label="글자 크기 조절">
               <button
@@ -215,6 +231,14 @@ export const FeedPage: React.FC = () => {
           )}
         </div>
       </main>
+      <button
+        type="button"
+        className={`feed-scroll-top ${showScrollTop ? "feed-scroll-top--visible" : ""}`}
+        onClick={() => window.scrollTo({ top: 0, left: 0, behavior: "smooth" })}
+        aria-label="맨 위로"
+      >
+        ↑
+      </button>
     </div>
   );
 };

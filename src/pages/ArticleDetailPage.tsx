@@ -19,6 +19,10 @@ export const ArticleDetailPage: React.FC = () => {
   const [showToc, setShowToc] = useState(false);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [id]);
+
+  useEffect(() => {
     const rawId = id == null ? "" : id.trim();
     const numId = rawId === "" ? NaN : parseInt(rawId, 10);
     if (Number.isNaN(numId) || numId < 1) {
