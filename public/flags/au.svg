@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" aria-hidden="true">
+  <defs>
+    <linearGradient id="auBlue" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0f4da3"/>
+      <stop offset="100%" stop-color="#012169"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="100" fill="url(#auBlue)"/>
+  <g transform="scale(1.3333333)">
+    <rect width="60" height="30" fill="#012169"/>
+    <path stroke="#fff" stroke-width="6" stroke-linecap="square" d="M0 0l60 30M60 0L0 30"/>
+    <path stroke="#c8102e" stroke-width="4" stroke-linecap="square" d="M0 0l60 30M60 0L0 30"/>
+    <path stroke="#fff" stroke-width="10" stroke-linecap="square" d="M30 0v30M0 15h60"/>
+    <path stroke="#c8102e" stroke-width="6" stroke-linecap="square" d="M30 0v30M0 15h60"/>
+  </g>
+  <g fill="#fff">
+    <circle cx="144" cy="46" r="3.4"/>
+    <circle cx="162" cy="36" r="2.9"/>
+    <circle cx="172" cy="50" r="2.9"/>
+    <circle cx="154" cy="60" r="2.7"/>
+    <circle cx="136" cy="68" r="2.4"/>
+  </g>
+  <circle cx="100" cy="72" r="4.2" fill="#fff"/>
+</svg>

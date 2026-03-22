@@ -475,11 +475,132 @@ body {
 
 .feed-card-meta {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
   margin-bottom: 8px;
+}
+
+.feed-card-meta-row {
+  display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+}
+
+.feed-tts-tray {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 라이트 모드: 피드 카드와 맞는 밝은 pill */
+.feed-tts-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px 4px 5px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+  color: #1e293b;
+  font-weight: 700;
+  font-size: 0.5625rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  transition: filter 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+:root[data-theme="dark"] .feed-tts-pill {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: linear-gradient(180deg, #4a4a4e 0%, #323234 100%);
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.feed-tts-pill:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+:root[data-theme="dark"] .feed-tts-pill:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.feed-tts-pill:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.feed-tts-pill--loading {
+  opacity: 0.85;
+}
+
+.feed-tts-flag-ring {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #ffffff 0%, #e8eaef 100%);
+  flex-shrink: 0;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.12),
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.feed-tts-flag-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border-radius: 50%;
+}
+
+.feed-tts-code {
+  line-height: 1;
+}
+
+.feed-tts-banner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: var(--text);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+:root[data-theme="dark"] .feed-tts-banner {
+  background: rgba(239, 68, 68, 0.16);
+}
+
+.feed-tts-banner-dismiss {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.feed-tts-banner-dismiss:hover {
+  background: rgba(239, 68, 68, 0.12);
 }
 
 .feed-card-date {

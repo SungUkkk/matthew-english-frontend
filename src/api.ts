@@ -27,6 +27,55 @@ export function articleDetailUrl(id: number): string {
   return API_BASE ? `${API_BASE}/articles/${id}` : `/api/articles/${id}`;
 }
 
+export type TtsAccent = "us" | "gb" | "au";
+
+const TTS_TIMEOUT_MS = 120_000;
+
+export function articleTtsUrl(id: number): string {
+  return API_BASE ? `${API_BASE}/articles/${id}/tts` : `/api/articles/${id}/tts`;
+}
+
+export async function fetchArticleTts(
+  articleId: number,
+  accent: TtsAccent,
+  signal?: AbortSignal
+): Promise<string[]> {
+  const url = articleTtsUrl(articleId);
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), TTS_TIMEOUT_MS);
+  const onExtAbort = () => controller.abort();
+  if (signal) {
+    if (signal.aborted) {
+      window.clearTimeout(timer);
+      throw new DOMException("Aborted", "AbortError");
+    }
+    signal.addEventListener("abort", onExtAbort);
+  }
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accent }),
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      const data = (await res.json().catch(() => null)) as { detail?: string } | null;
+      const detail = data?.detail;
+      throw new Error(typeof detail === "string" ? detail : `TTS 요청 실패 (${res.status})`);
+    }
+    const data = (await res.json()) as { parts_base64?: string[] };
+    if (!Array.isArray(data.parts_base64)) {
+      throw new Error("TTS 응답 형식이 올바르지 않습니다.");
+    }
+    return data.parts_base64;
+  } finally {
+    window.clearTimeout(timer);
+    if (signal) {
+      signal.removeEventListener("abort", onExtAbort);
+    }
+  }
+}
+
 export type Article = {
   id: number;
   title: string;

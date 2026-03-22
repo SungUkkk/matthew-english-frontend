@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { fetchArticles, formatStudyDate, type Article } from "../api";
+import { stopArticleTtsPlayback } from "../articleTtsPlayer";
+import { FeedArticleTtsButtons } from "../components/FeedArticleTtsButtons";
 import { useTheme } from "../theme";
 import { useZoom } from "../zoom";
 
@@ -15,6 +17,7 @@ export const FeedPage: React.FC = () => {
   const [query, setQuery] = useState("");
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [ttsError, setTtsError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const { zoom, increase, decrease } = useZoom();
@@ -22,6 +25,14 @@ export const FeedPage: React.FC = () => {
   useEffect(() => {
     document.title = "Article Feed";
   }, []);
+
+  useEffect(() => () => stopArticleTtsPlayback(), []);
+
+  useEffect(() => {
+    if (!ttsError) return;
+    const t = window.setTimeout(() => setTtsError(null), 8000);
+    return () => window.clearTimeout(t);
+  }, [ttsError]);
 
   useEffect(() => {
     let cancelled = false;
@@ -179,6 +190,14 @@ export const FeedPage: React.FC = () => {
         </div>
       </header>
       <main className="user-main">
+        {ttsError && (
+          <div className="feed-tts-banner" role="alert">
+            <span>{ttsError}</span>
+            <button type="button" className="feed-tts-banner-dismiss" onClick={() => setTtsError(null)}>
+              닫기
+            </button>
+          </div>
+        )}
         <div className="feed-search">
           <input
             type="text"
@@ -221,7 +240,10 @@ export const FeedPage: React.FC = () => {
                 }}
               >
                 <div className="feed-card-meta">
-                  <span className="feed-card-date">{formatStudyDate(a.study_date_ymd)}</span>
+                  <div className="feed-card-meta-row">
+                    <span className="feed-card-date">{formatStudyDate(a.study_date_ymd)}</span>
+                    <FeedArticleTtsButtons articleId={a.id} onError={setTtsError} />
+                  </div>
                   {a.source && <span className="feed-card-source">{a.source}</span>}
                 </div>
                 <h2 className="feed-card-title">{a.title}</h2>
