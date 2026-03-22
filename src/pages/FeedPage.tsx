@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { fetchArticles, formatStudyDate, type Article } from "../api";
+import { fetchAdminAccessAllowed, fetchArticles, formatStudyDate, type Article } from "../api";
 import { stopArticleTtsPlayback } from "../articleTtsPlayer";
 import { FeedArticleTtsButtons } from "../components/FeedArticleTtsButtons";
 import { useTheme } from "../theme";
@@ -18,6 +18,8 @@ export const FeedPage: React.FC = () => {
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [ttsError, setTtsError] = useState<string | null>(null);
+  /** ADMIN_ALLOWED_IPS 허용 네트워크에서만 TTS UI (관리자와 동일) */
+  const [ttsUiAllowed, setTtsUiAllowed] = useState(false);
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const { zoom, increase, decrease } = useZoom();
@@ -90,6 +92,18 @@ export const FeedPage: React.FC = () => {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, [loading, error, articles.length]);
+
+  useEffect(() => {
+    if (loading || error) return;
+    let cancelled = false;
+    (async () => {
+      const allowed = await fetchAdminAccessAllowed();
+      if (!cancelled) setTtsUiAllowed(allowed);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [loading, error, loadAttempt]);
 
   if (loading) {
     return (
@@ -242,7 +256,9 @@ export const FeedPage: React.FC = () => {
                 <div className="feed-card-meta">
                   <div className="feed-card-meta-row">
                     <span className="feed-card-date">{formatStudyDate(a.study_date_ymd)}</span>
-                    <FeedArticleTtsButtons articleId={a.id} onError={setTtsError} />
+                    {ttsUiAllowed && (
+                      <FeedArticleTtsButtons articleId={a.id} onError={setTtsError} />
+                    )}
                   </div>
                   {a.source && <span className="feed-card-source">{a.source}</span>}
                 </div>

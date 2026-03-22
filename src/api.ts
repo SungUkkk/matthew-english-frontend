@@ -27,6 +27,30 @@ export function articleDetailUrl(id: number): string {
   return API_BASE ? `${API_BASE}/articles/${id}` : `/api/articles/${id}`;
 }
 
+/** 백엔드 origin (로컬 dev 시 Vite 프록시 대신 직접 호출할 때 사용) */
+function apiOrigin(): string {
+  return (
+    import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? "http://127.0.0.1:8000" : "")
+  );
+}
+
+export function adminAccessUrl(): string {
+  const o = apiOrigin();
+  return o ? `${o}/admin/access` : "/api/admin/access";
+}
+
+/** ADMIN_ALLOWED_IPS 기준 허용 여부 (관리자 페이지와 동일). 미설정 시 항상 true. */
+export async function fetchAdminAccessAllowed(): Promise<boolean> {
+  try {
+    const res = await fetch(adminAccessUrl(), { cache: "no-store" });
+    if (!res.ok) return false;
+    const data = (await res.json()) as { allowed?: boolean };
+    return Boolean(data?.allowed);
+  } catch {
+    return false;
+  }
+}
+
 export type TtsAccent = "us" | "gb" | "au";
 
 const TTS_TIMEOUT_MS = 120_000;
