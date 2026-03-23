@@ -1275,3 +1275,35 @@ body {
   color: #f97373;
 }
 
+/* 모바일 상세 하단 이동 영역 고정 사이즈 (파일 하단에서 최종 오버라이드) */
+@media (max-width: 600px) {
+  .detail-swipe-layout .detail-main {
+    padding-bottom: 88px;
+  }
+
+  .detail-swipe-bar {
+    padding: 8px 12px 8px;
+    padding-bottom: 8px;
+    gap: 6px;
+  }
+
+  .detail-swipe-nav {
+    gap: 10px;
+  }
+
+  .detail-swipe-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1.05rem;
+  }
+
+  .detail-swipe-dots {
+    gap: 5px;
+  }
+
+  .detail-swipe-dot {
+    width: 6px;
+    height: 6px;
+  }
+}
+
