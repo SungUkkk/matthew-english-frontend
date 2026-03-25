@@ -2,7 +2,7 @@
 
 :root {
   color-scheme: light;
-  --bg: #f3f4f6;
+  --bg: #f8fafc;
   --bg-card: #ffffff;
   --accent: #2563eb;
   --accent-soft: rgba(37, 99, 235, 0.12);
@@ -451,6 +451,12 @@ body {
   transition: transform 0.15s ease, box-shadow 0.2s ease;
 }
 
+:root[data-theme="light"] .feed-card {
+  /* 라이트 모드에서 테두리가 너무 진해 보이는 것을 완화 */
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.10);
+}
+
 :root[data-theme="dark"] .feed-card {
   background: linear-gradient(145deg, #020617, #020617);
 }
@@ -466,6 +472,10 @@ body {
 .feed-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 20px 56px rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] .feed-card:hover {
+  box-shadow: 0 20px 56px rgba(15, 23, 42, 0.12);
 }
 
 .feed-card:focus-visible {
