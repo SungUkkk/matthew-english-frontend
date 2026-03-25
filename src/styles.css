@@ -453,7 +453,7 @@ body {
 
 :root[data-theme="light"] .feed-card {
   /* 라이트 모드에서 테두리가 너무 진해 보이는 것을 완화 */
-  border: 1px solid rgba(148, 163, 184, 0.28);
+  border: 1px solid rgba(148, 163, 184, 0.22);
   box-shadow: 0 14px 36px rgba(15, 23, 42, 0.10);
 }
 
