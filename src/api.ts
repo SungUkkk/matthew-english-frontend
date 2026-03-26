@@ -106,6 +106,7 @@ export type Article = {
   source: string | null;
   study_date_ymd: number | null;
   original_text: string;
+  summary: string | null;
   created_at: string;
   updated_at: string;
   sentences: ArticleSentence[];

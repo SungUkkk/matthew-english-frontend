@@ -57,22 +57,26 @@ export const ArticleDetailPage: React.FC = () => {
   }, [id, searchParams]);
 
   const sentences = article?.sentences ?? [];
-  const total = sentences.length;
-  const canGoPrev = total > 0 && currentIndex > 0;
-  const canGoNext = total > 0 && currentIndex < total - 1;
-  const currentSentence = total > 0 ? sentences[currentIndex] : null;
+  const totalSentences = sentences.length;
+  const summaryText = article?.summary?.trim() ?? "";
+  const hasSummary = summaryText.length > 0;
+  const totalPages = totalSentences + (hasSummary ? 1 : 0);
+  const isSummaryPage = hasSummary && currentIndex === totalPages - 1;
+  const canGoPrev = totalPages > 0 && currentIndex > 0;
+  const canGoNext = totalPages > 0 && currentIndex < totalPages - 1;
+  const currentSentence = !isSummaryPage && totalSentences > 0 ? sentences[currentIndex] : null;
 
   const goPrev = useCallback(() => {
     setCurrentIndex((i) => (i > 0 ? i - 1 : i));
   }, []);
 
   const goNext = useCallback(() => {
-    setCurrentIndex((i) => (i < total - 1 ? i + 1 : i));
-  }, [total]);
+    setCurrentIndex((i) => (i < totalPages - 1 ? i + 1 : i));
+  }, [totalPages]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (total === 0) return;
+      if (totalPages === 0) return;
       if (e.key === "ArrowLeft") {
         e.preventDefault();
         goPrev();
@@ -83,7 +87,7 @@ export const ArticleDetailPage: React.FC = () => {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [total, goPrev, goNext]);
+  }, [totalPages, goPrev, goNext]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStartX(e.targetTouches[0].clientX);
@@ -127,7 +131,7 @@ export const ArticleDetailPage: React.FC = () => {
     );
   }
 
-  if (total === 0) {
+  if (totalSentences === 0) {
     return (
       <div className="user-layout">
         <main className="user-main detail-main">
@@ -139,13 +143,19 @@ export const ArticleDetailPage: React.FC = () => {
             {article.source && <span className="detail-source">{article.source}</span>}
             <h1 className="detail-title">{article.title}</h1>
           </header>
-          <p className="feed-empty">분석된 문장이 없습니다.</p>
+          {!hasSummary && <p className="feed-empty">분석된 문장이 없습니다.</p>}
+          {hasSummary && (
+            <section className="detail-summary-card">
+              <h3 className="detail-summary-title">요약</h3>
+              <p className="detail-summary-text">{summaryText}</p>
+            </section>
+          )}
         </main>
       </div>
     );
   }
 
-  if (!currentSentence) {
+  if (!currentSentence && !isSummaryPage) {
     return null;
   }
 
@@ -166,7 +176,7 @@ export const ArticleDetailPage: React.FC = () => {
             onClick={() => setShowToc((v) => !v)}
             aria-expanded={showToc}
           >
-            문장 목록 ({total})
+            문장 목록 ({totalPages})
           </button>
         </header>
 
@@ -192,6 +202,21 @@ export const ArticleDetailPage: React.FC = () => {
                   </li>
                 );
               })}
+              {hasSummary && (
+                <li>
+                  <button
+                    type="button"
+                    className={`detail-toc-item detail-toc-item-summary ${isSummaryPage ? "active" : ""}`}
+                    onClick={() => {
+                      setCurrentIndex(totalPages - 1);
+                      setShowToc(false);
+                    }}
+                  >
+                    <span className="detail-toc-num">{totalPages}</span>
+                    <span className="detail-toc-preview">요약</span>
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
         )}
@@ -204,15 +229,23 @@ export const ArticleDetailPage: React.FC = () => {
           onTouchCancel={handleTouchEnd}
         >
           <div className="detail-sentence-wrap detail-sentence-wrap-single">
-            <SentenceCard
-              key={currentSentence.id}
-              sentence={currentSentence}
-              articleId={article.id}
-              articleTitle={article.title}
-              sentenceIndex={currentIndex}
-              bookmarkVersion={bookmarkVersion}
-              onBookmarkToggle={() => setBookmarkVersion((v) => v + 1)}
-            />
+            {isSummaryPage ? (
+              <section className="detail-summary-card">
+                <h3 className="detail-summary-title">요약</h3>
+                <p className="detail-summary-text">{summaryText}</p>
+              </section>
+            ) : currentSentence ? (
+              <SentenceCard
+                key={currentSentence.id}
+                sentence={currentSentence}
+                articleId={article.id}
+                articleTitle={article.title}
+                sentenceIndex={currentIndex}
+                bookmarkVersion={bookmarkVersion}
+                onBookmarkToggle={() => setBookmarkVersion((v) => v + 1)}
+              />
+            ) : null
+            }
           </div>
         </div>
 
@@ -228,7 +261,7 @@ export const ArticleDetailPage: React.FC = () => {
               ←
             </button>
             <span className="detail-swipe-indicator">
-              {currentIndex + 1} / {total}
+              {currentIndex + 1} / {totalPages}
             </span>
             <button
               type="button"
@@ -241,16 +274,17 @@ export const ArticleDetailPage: React.FC = () => {
             </button>
           </div>
           <div className="detail-swipe-dots">
-            {sentences.map((_, i) => (
+            {Array.from({ length: totalPages }).map((_, i) => (
               <button
                 key={i}
                 type="button"
-                className={`detail-swipe-dot ${i === currentIndex ? "active" : ""}`}
+                className={`detail-swipe-dot ${i === currentIndex ? "active" : ""} ${hasSummary && i === totalPages - 1 ? "is-summary-dot" : ""}`}
                 onClick={() => setCurrentIndex(i)}
-                aria-label={`문장 ${i + 1}`}
+                aria-label={i < totalSentences ? `문장 ${i + 1}` : "요약"}
               />
             ))}
           </div>
+          {hasSummary && <div className="detail-swipe-summary-legend">S = 요약</div>}
         </div>
       </main>
     </div>
