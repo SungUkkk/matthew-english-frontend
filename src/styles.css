@@ -980,13 +980,6 @@ body {
   text-shadow: 0 0 2px rgba(15, 23, 42, 0.35);
 }
 
-.detail-swipe-summary-legend {
-  margin-top: -2px;
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  letter-spacing: 0.01em;
-}
-
 .detail-summary-card {
   margin-top: 18px;
   margin-bottom: 24px;
@@ -1346,22 +1339,7 @@ body {
   cursor: pointer;
 }
 
-.admin-action-btn {
-  padding: 10px 16px;
-  border-radius: 999px;
-  border: none;
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.95), rgba(129, 140, 248, 0.95));
-  color: #0b1120;
-  font-weight: 600;
-  cursor: pointer;
-}
-
 .admin-form button:disabled {
-  opacity: 0.7;
-  cursor: default;
-}
-
-.admin-action-btn:disabled {
   opacity: 0.7;
   cursor: default;
 }

@@ -284,7 +284,6 @@ export const ArticleDetailPage: React.FC = () => {
               />
             ))}
           </div>
-          {hasSummary && <div className="detail-swipe-summary-legend">S = 요약</div>}
         </div>
       </main>
     </div>
