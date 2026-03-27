@@ -30,6 +30,7 @@ export const AdminPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isBackfilling, setIsBackfilling] = useState(false);
   const [gate, setGate] = useState<AdminGate>("loading");
   const [gateDetail, setGateDetail] = useState<string | null>(null);
 
@@ -37,6 +38,7 @@ export const AdminPage: React.FC = () => {
     import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? "http://localhost:8000" : "");
   const postUrl = apiBase ? `${apiBase}/articles` : "/api/articles";
   const accessUrl = apiBase ? `${apiBase}/admin/access` : "/api/admin/access";
+  const backfillUrl = apiBase ? `${apiBase}/admin/backfill-summaries` : "/api/admin/backfill-summaries";
 
   useEffect(() => {
     let cancelled = false;
@@ -117,6 +119,31 @@ export const AdminPage: React.FC = () => {
     }
   };
 
+  const handleBackfillSummaries = async () => {
+    setMessage(null);
+    setError(null);
+    try {
+      setIsBackfilling(true);
+      const res = await fetch(`${backfillUrl}?limit=500`, { method: "POST" });
+      const data = (await res.json().catch(() => null)) as
+        | { updated?: number; remaining?: number; failed_ids?: number[]; detail?: string }
+        | null;
+      if (!res.ok) {
+        throw new Error(data?.detail ?? "요약 백필 중 오류가 발생했습니다.");
+      }
+      const updated = data?.updated ?? 0;
+      const remaining = data?.remaining ?? 0;
+      const failedCount = data?.failed_ids?.length ?? 0;
+      setMessage(
+        `요약 백필 완료: ${updated}건 업데이트, 남은 누락 ${remaining}건${failedCount > 0 ? `, 실패 ${failedCount}건` : ""}`
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
+    } finally {
+      setIsBackfilling(false);
+    }
+  };
+
   if (gate === "loading") {
     return (
       <div className="admin-layout">
@@ -192,6 +219,20 @@ export const AdminPage: React.FC = () => {
           </form>
           {message && <p className="admin-message success">{message}</p>}
           {error && <p className="admin-message error">{error}</p>}
+        </section>
+        <section className="card admin-card" style={{ marginTop: "12px" }}>
+          <h2>기존 기사 요약 백필</h2>
+          <p style={{ marginTop: 0, marginBottom: "10px", opacity: 0.9 }}>
+            summary 누락 기사(기존 데이터)에 대해 최신 요약 규칙으로 다시 채웁니다.
+          </p>
+          <button
+            type="button"
+            className="admin-action-btn"
+            onClick={handleBackfillSummaries}
+            disabled={isBackfilling}
+          >
+            {isBackfilling ? "요약 생성 중..." : "기존 기사 요약 일괄 채우기"}
+          </button>
         </section>
       </main>
     </div>

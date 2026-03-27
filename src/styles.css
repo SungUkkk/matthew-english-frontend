@@ -1339,7 +1339,22 @@ body {
   cursor: pointer;
 }
 
+.admin-action-btn {
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.95), rgba(129, 140, 248, 0.95));
+  color: #0b1120;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .admin-form button:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.admin-action-btn:disabled {
   opacity: 0.7;
   cursor: default;
 }
