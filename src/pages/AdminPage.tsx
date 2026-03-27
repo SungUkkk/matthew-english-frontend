@@ -124,7 +124,7 @@ export const AdminPage: React.FC = () => {
     setError(null);
     try {
       setIsBackfilling(true);
-      const res = await fetch(`${backfillUrl}?limit=500`, { method: "POST" });
+      const res = await fetch(`${backfillUrl}?limit=500&workers=6`, { method: "POST" });
       const data = (await res.json().catch(() => null)) as
         | { updated?: number; remaining?: number; failed_ids?: number[]; detail?: string }
         | null;
