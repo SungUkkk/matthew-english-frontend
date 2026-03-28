@@ -102,8 +102,6 @@ export async function fetchArticleTts(
 
 export type Article = {
   id: number;
-  title: string;
-  source: string | null;
   study_date_ymd: number | null;
   original_text: string;
   summary: string | null;

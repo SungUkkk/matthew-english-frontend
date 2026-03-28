@@ -140,8 +140,6 @@ export const ArticleDetailPage: React.FC = () => {
           </button>
           <header className="detail-header">
             <span className="detail-date">{formatStudyDate(article.study_date_ymd)}</span>
-            {article.source && <span className="detail-source">{article.source}</span>}
-            <h1 className="detail-title">{article.title}</h1>
           </header>
           {!hasSummary && <p className="feed-empty">분석된 문장이 없습니다.</p>}
           {hasSummary && (
@@ -167,17 +165,17 @@ export const ArticleDetailPage: React.FC = () => {
         </button>
 
         <header className="detail-header">
-          <span className="detail-date">{formatStudyDate(article.study_date_ymd)}</span>
-          {article.source && <span className="detail-source">{article.source}</span>}
-          <h1 className="detail-title">{article.title}</h1>
-          <button
-            type="button"
-            className="detail-toc-toggle"
-            onClick={() => setShowToc((v) => !v)}
-            aria-expanded={showToc}
-          >
-            문장 목록 ({totalPages})
-          </button>
+          <div className="detail-header-row">
+            <span className="detail-date">{formatStudyDate(article.study_date_ymd)}</span>
+            <button
+              type="button"
+              className="detail-toc-toggle"
+              onClick={() => setShowToc((v) => !v)}
+              aria-expanded={showToc}
+            >
+              문장 목록 ({totalPages})
+            </button>
+          </div>
         </header>
 
         {showToc && (
@@ -239,7 +237,7 @@ export const ArticleDetailPage: React.FC = () => {
                 key={currentSentence.id}
                 sentence={currentSentence}
                 articleId={article.id}
-                articleTitle={article.title}
+                articleTitle={formatStudyDate(article.study_date_ymd) || "기사"}
                 sentenceIndex={currentIndex}
                 bookmarkVersion={bookmarkVersion}
                 onBookmarkToggle={() => setBookmarkVersion((v) => v + 1)}

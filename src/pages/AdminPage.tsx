@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 
 type CreateArticlePayload = {
-  title?: string | null;
-  source?: string | null;
   study_date_ymd: number;
   original_text: string;
 };
@@ -24,7 +22,6 @@ const isValidYmd = (value: string): boolean => {
 type AdminGate = "loading" | "allowed" | "denied" | "error";
 
 export const AdminPage: React.FC = () => {
-  const [title, setTitle] = useState("");
   const [studyDate, setStudyDate] = useState("");
   const [originalText, setOriginalText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -92,8 +89,6 @@ export const AdminPage: React.FC = () => {
     }
     const studyDateYmd = Number(trimmedStudyDate);
     const payload: CreateArticlePayload = {
-      title: title.trim() || null,
-      source: null,
       study_date_ymd: studyDateYmd,
       original_text: originalText,
     };
@@ -109,7 +104,6 @@ export const AdminPage: React.FC = () => {
         throw new Error(data?.detail ?? "등록 중 오류가 발생했습니다.");
       }
       setMessage("분석 및 저장이 완료되었습니다. (문장/표현 정보까지 DB에 저장됨)");
-      setTitle("");
       setStudyDate("");
       setOriginalText("");
     } catch (err) {
@@ -186,15 +180,6 @@ export const AdminPage: React.FC = () => {
         <section className="card admin-card">
           <h2>새 기사 등록</h2>
           <form onSubmit={handleSubmit} className="admin-form">
-            <label>
-              <div>제목 (선택)</div>
-              <input
-                type="text"
-                value={title}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
-                placeholder="예: Haunting season in Westminster"
-              />
-            </label>
             <label>
               <div>스터디 날짜 (YYYYMMDD)</div>
               <input

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { fetchAdminAccessAllowed, fetchArticles, formatStudyDate, type Article } from "../api";
 import { stopArticleTtsPlayback } from "../articleTtsPlayer";
@@ -10,11 +10,28 @@ const isProdApi = Boolean(import.meta.env.VITE_API_URL);
 
 const SCROLL_TOP_THRESHOLD = 8;
 
+type FeedSortOrder = "newest" | "oldest";
+
+function compareArticlesForFeed(a: Article, b: Article, order: FeedSortOrder): number {
+  const ymdA = a.study_date_ymd ?? 0;
+  const ymdB = b.study_date_ymd ?? 0;
+  if (ymdA !== ymdB) {
+    return order === "newest" ? ymdB - ymdA : ymdA - ymdB;
+  }
+  const tA = Date.parse(a.created_at);
+  const tB = Date.parse(b.created_at);
+  const na = Number.isNaN(tA) ? 0 : tA;
+  const nb = Number.isNaN(tB) ? 0 : tB;
+  return order === "newest" ? nb - na : na - nb;
+}
+
 export const FeedPage: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  /** 최신순이 기본. 버튼에는 반대 방향(전환 대상) 라벨을 표시 */
+  const [sortOrder, setSortOrder] = useState<FeedSortOrder>("newest");
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [ttsError, setTtsError] = useState<string | null>(null);
@@ -105,6 +122,17 @@ export const FeedPage: React.FC = () => {
     };
   }, [loading, error, loadAttempt]);
 
+  const trimmedQuery = query.trim().toLowerCase();
+
+  const sortedArticles = useMemo(() => {
+    return [...articles].sort((a, b) => compareArticlesForFeed(a, b, sortOrder));
+  }, [articles, sortOrder]);
+
+  const filtered = useMemo(() => {
+    if (trimmedQuery === "") return sortedArticles;
+    return sortedArticles.filter((a) => a.original_text.toLowerCase().includes(trimmedQuery));
+  }, [sortedArticles, trimmedQuery]);
+
   if (loading) {
     return (
       <div className="user-layout">
@@ -156,17 +184,6 @@ export const FeedPage: React.FC = () => {
       </div>
     );
   }
-
-  const trimmedQuery = query.trim().toLowerCase();
-  const filtered =
-    trimmedQuery === ""
-      ? articles
-      : articles.filter((a) => {
-          const original = a.original_text.toLowerCase();
-          return (
-            original.includes(trimmedQuery)
-          );
-        });
 
   return (
     <div className="user-layout">
@@ -231,6 +248,16 @@ export const FeedPage: React.FC = () => {
             </span>
           )}
         </div>
+        <div className="feed-sort">
+          <button
+            type="button"
+            className="feed-sort-btn"
+            onClick={() => setSortOrder((o) => (o === "newest" ? "oldest" : "newest"))}
+            aria-label={sortOrder === "newest" ? "오래된순으로 보기" : "최신순으로 보기"}
+          >
+            {sortOrder === "newest" ? "오래된순" : "최신순"}
+          </button>
+        </div>
         <div className="feed-list">
           {filtered.length === 0 ? (
             <div className="feed-empty">등록된 기사가 없습니다.</div>
@@ -260,9 +287,7 @@ export const FeedPage: React.FC = () => {
                       <FeedArticleTtsButtons articleId={a.id} onError={setTtsError} />
                     )}
                   </div>
-                  {a.source && <span className="feed-card-source">{a.source}</span>}
                 </div>
-                <h2 className="feed-card-title">{a.title}</h2>
                 <div className="feed-card-original">{a.original_text}</div>
               </article>
             ))
