@@ -1090,17 +1090,31 @@ body {
   background: rgba(148, 163, 184, 0.15);
 }
 
+/* 바깥: 가로 스크롤 + 트랙을 가운데 배치. 안쪽 트랙은 flex-start라 scrollLeft=0에서 1페이지 도트부터 보임 */
 .detail-swipe-dots {
   display: flex;
   flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
-  gap: 8px;
+  gap: 0;
+  width: 100%;
   max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   overflow-x: auto;
   overflow-y: visible;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+}
+
+.detail-swipe-dots-track {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  flex: 0 0 auto;
+  min-width: min-content;
 }
 
 .detail-swipe-dots::-webkit-scrollbar {
@@ -1597,9 +1611,9 @@ body {
     font-size: 1.05rem;
   }
 
-  /* PC·태블릿과 동일하게 도트 줄 가운데 정렬(가로 스크롤 + JS 보정으로 활성 도트 노출) */
+  /* 가운데 정렬 유지 + 트랙 간격은 안쪽에서만(많은 페이지 시 첫 도트 잘림 방지) */
   .detail-swipe-dots {
-    gap: 6px;
+    gap: 0;
     min-height: 44px;
     padding-block: 2px;
     justify-content: center;
@@ -1608,6 +1622,10 @@ body {
     align-self: stretch;
     min-width: 0;
     box-sizing: border-box;
+  }
+
+  .detail-swipe-dots-track {
+    gap: 6px;
   }
 
   .detail-swipe-dot {

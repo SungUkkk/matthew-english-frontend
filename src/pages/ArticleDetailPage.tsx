@@ -83,7 +83,9 @@ export const ArticleDetailPage: React.FC = () => {
   useLayoutEffect(() => {
     const container = dotsRowRef.current;
     if (!container || totalPages === 0) return;
-    const el = container.children[currentIndex];
+    const track = container.querySelector<HTMLElement>(".detail-swipe-dots-track");
+    if (!track) return;
+    const el = track.children[currentIndex];
     if (!(el instanceof HTMLElement)) return;
     const run = () => scrollDotRowIfNeeded(container, el);
     run();
@@ -300,26 +302,28 @@ export const ArticleDetailPage: React.FC = () => {
             </button>
           </div>
           <div className="detail-swipe-dots" ref={dotsRowRef}>
-            {Array.from({ length: totalPages }).map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                className={`detail-swipe-dot ${i === currentIndex ? "active" : ""} ${hasSummary && i === totalPages - 1 ? "is-summary-dot" : ""}`}
-                onPointerUp={(e) => {
-                  e.stopPropagation();
-                  /* 모바일: 첫 터치에서 click 이 누락·지연되는 경우 대비 */
-                  if (e.pointerType === "touch" || e.pointerType === "pen") {
-                    e.preventDefault();
+            <div className="detail-swipe-dots-track">
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className={`detail-swipe-dot ${i === currentIndex ? "active" : ""} ${hasSummary && i === totalPages - 1 ? "is-summary-dot" : ""}`}
+                  onPointerUp={(e) => {
+                    e.stopPropagation();
+                    /* 모바일: 첫 터치에서 click 이 누락·지연되는 경우 대비 */
+                    if (e.pointerType === "touch" || e.pointerType === "pen") {
+                      e.preventDefault();
+                      setCurrentIndex(i);
+                    }
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setCurrentIndex(i);
-                  }
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCurrentIndex(i);
-                }}
-                aria-label={i < totalSentences ? `문장 ${i + 1}` : "요약"}
-              />
-            ))}
+                  }}
+                  aria-label={i < totalSentences ? `문장 ${i + 1}` : "요약"}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </main>
