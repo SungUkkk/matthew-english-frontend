@@ -931,7 +931,8 @@ body {
 
 /* 상단/카드 영역은 스크롤, 하단 네비는 항상 같은 위치에 고정 */
 .detail-swipe-layout .detail-main {
-  padding-bottom: 130px;
+  /* 도트 다줄 표시 시 고정 하단 바 높이 변동 대비 */
+  padding-bottom: clamp(140px, 22vh + 100px, 300px);
 }
 
 .detail-swipe-bar {
@@ -1012,30 +1013,18 @@ body {
 
 .detail-swipe-dots {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
+  align-content: center;
   gap: 8px;
+  row-gap: 10px;
   width: 100%;
   max-width: 100%;
   min-width: 0;
   align-self: stretch;
   box-sizing: border-box;
-  overflow-x: auto;
-  overflow-y: visible;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  scroll-behavior: auto;
-}
-
-/* 많은 도트: center 재배치로 스크롤이 튀는 현상 방지 — 왼쪽 기준 + JS로 활성만 살짝 따라감 */
-.detail-swipe-dots.detail-swipe-dots--overflow {
-  justify-content: flex-start;
-  padding-inline: 4px;
-}
-
-.detail-swipe-dots::-webkit-scrollbar {
-  display: none;
+  overflow: visible;
 }
 
 .detail-swipe-dot {
@@ -1506,9 +1495,8 @@ body {
 
 /* 모바일 상세 하단 이동 영역 고정 사이즈 (파일 하단에서 최종 오버라이드) */
 @media (max-width: 600px) {
-  /* 도트 줄: 한 줄 유지 + 가로 스크롤(필요 시). 터치는 ::before로만 확대 */
   .detail-swipe-layout .detail-main {
-    padding-bottom: 108px;
+    padding-bottom: clamp(120px, 30vh + 72px, 320px);
   }
 
   .detail-swipe-bar {
@@ -1530,7 +1518,7 @@ body {
 
   .detail-swipe-dots {
     gap: 6px;
-    min-height: 44px;
+    row-gap: 8px;
     padding-block: 2px;
   }
 
@@ -1539,7 +1527,7 @@ body {
     height: 10px;
   }
 
-  /* 레이아웃 폭은 작은 점 기준, 터치 영역만 넓힘(줄바꿈 방지) */
+  /* 터치 영역 확대(줄 여러 줄이어도 ::before는 점마다 유지) */
   .detail-swipe-dot::before {
     content: "";
     position: absolute;

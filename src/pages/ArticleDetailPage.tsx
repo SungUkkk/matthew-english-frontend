@@ -1,20 +1,9 @@
-import React, { useEffect, useLayoutEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { fetchArticle, formatStudyDate, type Article, type ArticleSentence } from "../api";
 import { getBookmarks, toggleBookmark, type BookmarkItem } from "../bookmarks";
 
 const SWIPE_THRESHOLD = 50;
-
-/** 도트 가로 스크롤 영역만 최소 이동(페이지·레이아웃 스크롤 없음). */
-function scrollDotRowToShowActive(container: HTMLElement, activeDot: HTMLElement, margin = 12) {
-  const c = container.getBoundingClientRect();
-  const r = activeDot.getBoundingClientRect();
-  if (r.left < c.left + margin) {
-    container.scrollLeft += r.left - c.left - margin;
-  } else if (r.right > c.right - margin) {
-    container.scrollLeft += r.right - c.right + margin;
-  }
-}
 
 export const ArticleDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -28,8 +17,8 @@ export const ArticleDetailPage: React.FC = () => {
   const [touchDeltaX, setTouchDeltaX] = useState(0);
   const [bookmarkVersion, setBookmarkVersion] = useState(0);
   const [showToc, setShowToc] = useState(false);
-  const dotsScrollRef = useRef<HTMLDivElement>(null);
-  const [dotsOverflow, setDotsOverflow] = useState(false);
+  /** 터치 후 합성 click이 옆 도트로 떨어져 2페이지씩 이동하는 것 방지 */
+  const suppressDotClickUntilRef = useRef(0);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
@@ -90,6 +79,7 @@ export const ArticleDetailPage: React.FC = () => {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (totalPages === 0) return;
+      if (e.repeat) return;
       if (e.key === "ArrowLeft") {
         e.preventDefault();
         goPrev();
@@ -101,29 +91,6 @@ export const ArticleDetailPage: React.FC = () => {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [totalPages, goPrev, goNext]);
-
-  useLayoutEffect(() => {
-    const el = dotsScrollRef.current;
-    if (!el) return;
-    const update = () => setDotsOverflow(el.scrollWidth > el.clientWidth + 1);
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [totalPages, currentIndex]);
-
-  useLayoutEffect(() => {
-    const container = dotsScrollRef.current;
-    if (!container) return;
-    const dot = container.querySelector<HTMLButtonElement>(
-      `button[data-dot-index="${currentIndex}"]`,
-    );
-    if (!dot) {
-      container.scrollLeft = 0;
-      return;
-    }
-    scrollDotRowToShowActive(container, dot);
-  }, [currentIndex, totalPages, dotsOverflow]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStartX(e.targetTouches[0].clientX);
@@ -311,26 +278,26 @@ export const ArticleDetailPage: React.FC = () => {
               →
             </button>
           </div>
-          <div
-            ref={dotsScrollRef}
-            className={`detail-swipe-dots${dotsOverflow ? " detail-swipe-dots--overflow" : ""}`}
-          >
+          <div className="detail-swipe-dots">
             {Array.from({ length: totalPages }).map((_, i) => (
               <button
                 key={i}
                 type="button"
-                data-dot-index={i}
                 className={`detail-swipe-dot ${i === currentIndex ? "active" : ""} ${hasSummary && i === totalPages - 1 ? "is-summary-dot" : ""}`}
                 onPointerUp={(e) => {
                   e.stopPropagation();
-                  /* 모바일: 첫 터치에서 click 이 누락·지연되는 경우 대비 */
                   if (e.pointerType === "touch" || e.pointerType === "pen") {
                     e.preventDefault();
+                    suppressDotClickUntilRef.current = Date.now() + 450;
                     setCurrentIndex(i);
                   }
                 }}
                 onClick={(e) => {
                   e.stopPropagation();
+                  if (Date.now() < suppressDotClickUntilRef.current) {
+                    e.preventDefault();
+                    return;
+                  }
                   setCurrentIndex(i);
                 }}
                 aria-label={i < totalSentences ? `문장 ${i + 1}` : "요약"}
