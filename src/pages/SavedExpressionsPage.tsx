@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { getBookmarks, removeBookmark, type BookmarkItem } from "../bookmarks";
 
 const SAVED_SORT_KEY = "savedExpressionsSort";
+const SAVED_SEARCH_QUERY_KEY = "savedExpressionsSearchQuery";
 type SavedSort = "recent" | "alpha";
 
 function readStoredSavedSort(): SavedSort {
@@ -15,9 +16,17 @@ function readStoredSavedSort(): SavedSort {
   return "recent";
 }
 
+function readStoredSavedSearchQuery(): string {
+  try {
+    return sessionStorage.getItem(SAVED_SEARCH_QUERY_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
 export const SavedExpressionsPage: React.FC = () => {
   const [items, setItems] = useState<BookmarkItem[]>([]);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(readStoredSavedSearchQuery);
   const [sort, setSort] = useState<SavedSort>(readStoredSavedSort);
 
   useEffect(() => {
@@ -31,6 +40,14 @@ export const SavedExpressionsPage: React.FC = () => {
       /* ignore */
     }
   }, [sort]);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(SAVED_SEARCH_QUERY_KEY, query);
+    } catch {
+      /* ignore */
+    }
+  }, [query]);
 
   const handleRemove = (expressionId: number) => {
     removeBookmark(expressionId);

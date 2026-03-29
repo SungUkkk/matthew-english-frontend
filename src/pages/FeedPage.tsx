@@ -10,6 +10,7 @@ const isProdApi = Boolean(import.meta.env.VITE_API_URL);
 
 const SCROLL_TOP_THRESHOLD = 8;
 const FEED_SORT_ORDER_KEY = "feedSortOrder";
+const FEED_SEARCH_QUERY_KEY = "feedSearchQuery";
 
 type FeedSortOrder = "newest" | "oldest";
 
@@ -21,6 +22,14 @@ function readStoredSortOrder(): FeedSortOrder {
     /* ignore */
   }
   return "newest";
+}
+
+function readStoredFeedSearchQuery(): string {
+  try {
+    return sessionStorage.getItem(FEED_SEARCH_QUERY_KEY) ?? "";
+  } catch {
+    return "";
+  }
 }
 
 function compareArticlesForFeed(a: Article, b: Article, order: FeedSortOrder): number {
@@ -40,7 +49,7 @@ export const FeedPage: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(readStoredFeedSearchQuery);
   /** 최신순이 기본(세션에 없을 때). 버튼에는 반대 방향(전환 대상) 라벨 — 오래된순이면 "최신순" 표시 */
   const [sortOrder, setSortOrder] = useState<FeedSortOrder>(readStoredSortOrder);
   const [loadAttempt, setLoadAttempt] = useState(0);
@@ -65,6 +74,14 @@ export const FeedPage: React.FC = () => {
       /* ignore */
     }
   }, [sortOrder]);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(FEED_SEARCH_QUERY_KEY, query);
+    } catch {
+      /* ignore */
+    }
+  }, [query]);
 
   useEffect(() => {
     if (!ttsError) return;
