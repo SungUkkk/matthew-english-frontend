@@ -1597,12 +1597,12 @@ body {
     font-size: 1.05rem;
   }
 
-  /* 많은 페이지: center + overflow 시 왼쪽(1페이지) 도트가 잘리는 현상 방지 */
+  /* PC·태블릿과 동일하게 도트 줄 가운데 정렬(가로 스크롤 + JS 보정으로 활성 도트 노출) */
   .detail-swipe-dots {
     gap: 6px;
     min-height: 44px;
     padding-block: 2px;
-    justify-content: flex-start;
+    justify-content: center;
     width: 100%;
     max-width: 100%;
     align-self: stretch;

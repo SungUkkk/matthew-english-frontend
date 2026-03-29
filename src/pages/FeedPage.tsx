@@ -9,8 +9,19 @@ import { useZoom } from "../zoom";
 const isProdApi = Boolean(import.meta.env.VITE_API_URL);
 
 const SCROLL_TOP_THRESHOLD = 8;
+const FEED_SORT_ORDER_KEY = "feedSortOrder";
 
 type FeedSortOrder = "newest" | "oldest";
+
+function readStoredSortOrder(): FeedSortOrder {
+  try {
+    const s = sessionStorage.getItem(FEED_SORT_ORDER_KEY);
+    if (s === "oldest" || s === "newest") return s;
+  } catch {
+    /* ignore */
+  }
+  return "newest";
+}
 
 function compareArticlesForFeed(a: Article, b: Article, order: FeedSortOrder): number {
   const ymdA = a.study_date_ymd ?? 0;
@@ -30,8 +41,8 @@ export const FeedPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  /** 최신순이 기본. 버튼에는 반대 방향(전환 대상) 라벨을 표시 */
-  const [sortOrder, setSortOrder] = useState<FeedSortOrder>("newest");
+  /** 최신순이 기본(세션에 없을 때). 버튼에는 반대 방향(전환 대상) 라벨 — 오래된순이면 "최신순" 표시 */
+  const [sortOrder, setSortOrder] = useState<FeedSortOrder>(readStoredSortOrder);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [ttsError, setTtsError] = useState<string | null>(null);
@@ -46,6 +57,14 @@ export const FeedPage: React.FC = () => {
   }, []);
 
   useEffect(() => () => stopArticleTtsPlayback(), []);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(FEED_SORT_ORDER_KEY, sortOrder);
+    } catch {
+      /* ignore */
+    }
+  }, [sortOrder]);
 
   useEffect(() => {
     if (!ttsError) return;
