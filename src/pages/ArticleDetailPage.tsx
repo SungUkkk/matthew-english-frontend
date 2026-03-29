@@ -1,9 +1,20 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useLayoutEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { fetchArticle, formatStudyDate, type Article, type ArticleSentence } from "../api";
 import { getBookmarks, toggleBookmark, type BookmarkItem } from "../bookmarks";
 
 const SWIPE_THRESHOLD = 50;
+
+/** 도트 가로 스크롤 영역만 최소 이동(페이지·레이아웃 스크롤 없음). */
+function scrollDotRowToShowActive(container: HTMLElement, activeDot: HTMLElement, margin = 12) {
+  const c = container.getBoundingClientRect();
+  const r = activeDot.getBoundingClientRect();
+  if (r.left < c.left + margin) {
+    container.scrollLeft += r.left - c.left - margin;
+  } else if (r.right > c.right - margin) {
+    container.scrollLeft += r.right - c.right + margin;
+  }
+}
 
 export const ArticleDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +28,8 @@ export const ArticleDetailPage: React.FC = () => {
   const [touchDeltaX, setTouchDeltaX] = useState(0);
   const [bookmarkVersion, setBookmarkVersion] = useState(0);
   const [showToc, setShowToc] = useState(false);
+  const dotsScrollRef = useRef<HTMLDivElement>(null);
+  const [dotsOverflow, setDotsOverflow] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
@@ -88,6 +101,29 @@ export const ArticleDetailPage: React.FC = () => {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [totalPages, goPrev, goNext]);
+
+  useLayoutEffect(() => {
+    const el = dotsScrollRef.current;
+    if (!el) return;
+    const update = () => setDotsOverflow(el.scrollWidth > el.clientWidth + 1);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [totalPages, currentIndex]);
+
+  useLayoutEffect(() => {
+    const container = dotsScrollRef.current;
+    if (!container) return;
+    const dot = container.querySelector<HTMLButtonElement>(
+      `button[data-dot-index="${currentIndex}"]`,
+    );
+    if (!dot) {
+      container.scrollLeft = 0;
+      return;
+    }
+    scrollDotRowToShowActive(container, dot);
+  }, [currentIndex, totalPages, dotsOverflow]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStartX(e.targetTouches[0].clientX);
@@ -275,11 +311,15 @@ export const ArticleDetailPage: React.FC = () => {
               →
             </button>
           </div>
-          <div className="detail-swipe-dots">
+          <div
+            ref={dotsScrollRef}
+            className={`detail-swipe-dots${dotsOverflow ? " detail-swipe-dots--overflow" : ""}`}
+          >
             {Array.from({ length: totalPages }).map((_, i) => (
               <button
                 key={i}
                 type="button"
+                data-dot-index={i}
                 className={`detail-swipe-dot ${i === currentIndex ? "active" : ""} ${hasSummary && i === totalPages - 1 ? "is-summary-dot" : ""}`}
                 onPointerUp={(e) => {
                   e.stopPropagation();

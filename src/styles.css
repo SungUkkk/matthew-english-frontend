@@ -1016,11 +1016,22 @@ body {
   justify-content: center;
   align-items: center;
   gap: 8px;
+  width: 100%;
   max-width: 100%;
+  min-width: 0;
+  align-self: stretch;
+  box-sizing: border-box;
   overflow-x: auto;
   overflow-y: visible;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  scroll-behavior: auto;
+}
+
+/* 많은 도트: center 재배치로 스크롤이 튀는 현상 방지 — 왼쪽 기준 + JS로 활성만 살짝 따라감 */
+.detail-swipe-dots.detail-swipe-dots--overflow {
+  justify-content: flex-start;
+  padding-inline: 4px;
 }
 
 .detail-swipe-dots::-webkit-scrollbar {
