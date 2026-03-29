@@ -1478,18 +1478,22 @@ body {
   border-color: #dc2626;
 }
 
-/* Link.detail-back 이 inline-block 되면 삼성 인터넷 등에서 텍스트이 상단 붙음 → inline-flex 유지 */
+/* 상세 «목록으로»(.detail-nav-row .detail-back)와 동일: 높이 40px, 좌우 10px, 너비는 텍스트에 맞게 */
 a.saved-expressions-back.detail-back,
 .saved-expressions-back.detail-back {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
+  width: fit-content;
+  max-width: 100%;
+  min-width: 0;
   margin-top: 8px;
   margin-bottom: 16px;
+  padding: 0 10px;
+  min-height: 40px;
   text-decoration: none;
-  line-height: 1.35;
-  min-height: 0;
-  padding: 8px 13px;
+  line-height: normal;
   box-sizing: border-box;
   vertical-align: middle;
   -webkit-tap-highlight-color: transparent;
