@@ -1,9 +1,22 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useLayoutEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { fetchArticle, formatStudyDate, type Article, type ArticleSentence } from "../api";
 import { getBookmarks, toggleBookmark, type BookmarkItem } from "../bookmarks";
 
 const SWIPE_THRESHOLD = 50;
+
+/** 도트 줄(가로 스크롤)만 이동 — 활성 점(요약 S 포함)이 잘리지 않게 */
+function scrollDotRowIfNeeded(container: HTMLElement, dot: HTMLElement, margin = 10) {
+  const cRect = container.getBoundingClientRect();
+  const r = dot.getBoundingClientRect();
+  const deltaLeft = r.left - cRect.left - margin;
+  const deltaRight = r.right - cRect.right + margin;
+  let next = container.scrollLeft;
+  if (deltaLeft < 0) next += deltaLeft;
+  else if (deltaRight > 0) next += deltaRight;
+  const maxScroll = Math.max(0, container.scrollWidth - container.clientWidth);
+  container.scrollLeft = Math.max(0, Math.min(next, maxScroll));
+}
 
 export const ArticleDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +30,7 @@ export const ArticleDetailPage: React.FC = () => {
   const [touchDeltaX, setTouchDeltaX] = useState(0);
   const [bookmarkVersion, setBookmarkVersion] = useState(0);
   const [showToc, setShowToc] = useState(false);
+  const dotsRowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
@@ -65,6 +79,16 @@ export const ArticleDetailPage: React.FC = () => {
   const canGoPrev = totalPages > 0 && currentIndex > 0;
   const canGoNext = totalPages > 0 && currentIndex < totalPages - 1;
   const currentSentence = !isSummaryPage && totalSentences > 0 ? sentences[currentIndex] : null;
+
+  useLayoutEffect(() => {
+    const container = dotsRowRef.current;
+    if (!container || totalPages === 0) return;
+    const el = container.children[currentIndex];
+    if (!(el instanceof HTMLElement)) return;
+    const run = () => scrollDotRowIfNeeded(container, el);
+    run();
+    requestAnimationFrame(run);
+  }, [currentIndex, totalPages]);
 
   const goPrev = useCallback(() => {
     setCurrentIndex((i) => (i > 0 ? i - 1 : i));
@@ -275,7 +299,7 @@ export const ArticleDetailPage: React.FC = () => {
               →
             </button>
           </div>
-          <div className="detail-swipe-dots">
+          <div className="detail-swipe-dots" ref={dotsRowRef}>
             {Array.from({ length: totalPages }).map((_, i) => (
               <button
                 key={i}
