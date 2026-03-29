@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { fetchArticle, formatStudyDate, type Article, type ArticleSentence } from "../api";
 import { getBookmarks, toggleBookmark, type BookmarkItem } from "../bookmarks";
@@ -17,8 +17,6 @@ export const ArticleDetailPage: React.FC = () => {
   const [touchDeltaX, setTouchDeltaX] = useState(0);
   const [bookmarkVersion, setBookmarkVersion] = useState(0);
   const [showToc, setShowToc] = useState(false);
-  /** 터치 후 합성 click이 옆 도트로 떨어져 2페이지씩 이동하는 것 방지 */
-  const suppressDotClickUntilRef = useRef(0);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
@@ -79,7 +77,6 @@ export const ArticleDetailPage: React.FC = () => {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (totalPages === 0) return;
-      if (e.repeat) return;
       if (e.key === "ArrowLeft") {
         e.preventDefault();
         goPrev();
@@ -286,18 +283,14 @@ export const ArticleDetailPage: React.FC = () => {
                 className={`detail-swipe-dot ${i === currentIndex ? "active" : ""} ${hasSummary && i === totalPages - 1 ? "is-summary-dot" : ""}`}
                 onPointerUp={(e) => {
                   e.stopPropagation();
+                  /* 모바일: 첫 터치에서 click 이 누락·지연되는 경우 대비 */
                   if (e.pointerType === "touch" || e.pointerType === "pen") {
                     e.preventDefault();
-                    suppressDotClickUntilRef.current = Date.now() + 450;
                     setCurrentIndex(i);
                   }
                 }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (Date.now() < suppressDotClickUntilRef.current) {
-                    e.preventDefault();
-                    return;
-                  }
                   setCurrentIndex(i);
                 }}
                 aria-label={i < totalSentences ? `문장 ${i + 1}` : "요약"}

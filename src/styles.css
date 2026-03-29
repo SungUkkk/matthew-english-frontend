@@ -131,19 +131,15 @@ body {
   }
 
   .user-layout {
-    padding: 16px 10px 40px;
+    padding: 18px 14px 40px;
   }
 
   .user-main {
-    padding: 0 2px;
+    padding: 0 4px;
   }
 
   .user-main.feed-page-main {
     padding: 0;
-  }
-
-  .feed-card {
-    padding: 14px 12px 16px;
   }
 
   .detail-sentence {
@@ -165,22 +161,64 @@ body {
     padding-right: 16px;
   }
 
-  .feed-header-actions {
-    justify-content: flex-start;
+  .feed-header-tools {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-items: stretch;
+    justify-content: stretch;
+    margin-top: 16px;
   }
 
-  /* 모바일: 정렬 버튼 + 검색창 한 줄(가로), 남는 폭은 검색창이 사용 */
+  .feed-header-tools .theme-toggle,
+  .feed-header-tools .zoom-controls {
+    width: 100%;
+    min-height: 40px;
+    justify-content: center;
+  }
+
+  .feed-header-tools .feed-saved-btn {
+    grid-column: 1 / -1;
+    min-height: 40px;
+    box-shadow: 0 1px 6px rgba(37, 99, 235, 0.22);
+  }
+
+  .feed-header-count {
+    justify-content: center;
+    text-align: center;
+    margin-top: 12px;
+    padding-top: 2px;
+  }
+
+  .user-subtitle {
+    margin-bottom: 2px;
+  }
+
+  /* 모바일: 정렬 → 검색 세로 스택, 검색창 전체 폭 */
   .feed-sort-search-row {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .feed-sort-search-row .feed-sort-btn {
+    align-self: flex-start;
   }
 
   .feed-sort-search-row .feed-search-input {
     flex: 1 1 auto;
-    width: auto;
+    width: 100%;
+    max-width: 100%;
     min-width: 0;
-    max-width: none;
+  }
+
+  .feed-card {
+    padding: 18px 16px 20px;
+  }
+
+  .feed-card-original {
+    font-size: 0.9375rem;
+    line-height: 1.65;
   }
 }
 
@@ -190,7 +228,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px 14px 48px;
+  padding: 20px 16px 48px;
   background: var(--bg);
   color: var(--text);
 }
@@ -211,26 +249,29 @@ body {
 }
 
 .user-subtitle {
-  margin: 0;
+  margin: 0 0 4px;
   color: var(--text-muted);
   font-size: 0.95rem;
 }
 
-.feed-header-actions {
+.feed-header-tools {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: stretch;
   justify-content: flex-start;
   gap: 8px;
   width: 100%;
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .feed-header-count {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   min-height: 36px;
+  width: 100%;
+  margin-top: 10px;
   padding-left: 2px;
+  box-sizing: border-box;
 }
 
 /* 테마 / 확대·축소 / 저장한 표현 — 동일 높이·왼쪽 정렬, 간격 8px 통일 */
@@ -931,8 +972,7 @@ body {
 
 /* 상단/카드 영역은 스크롤, 하단 네비는 항상 같은 위치에 고정 */
 .detail-swipe-layout .detail-main {
-  /* 도트 다줄 표시 시 고정 하단 바 높이 변동 대비 */
-  padding-bottom: clamp(140px, 22vh + 100px, 300px);
+  padding-bottom: 130px;
 }
 
 .detail-swipe-bar {
@@ -1013,18 +1053,19 @@ body {
 
 .detail-swipe-dots {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
-  align-content: center;
   gap: 8px;
-  row-gap: 10px;
-  width: 100%;
   max-width: 100%;
-  min-width: 0;
-  align-self: stretch;
-  box-sizing: border-box;
-  overflow: visible;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.detail-swipe-dots::-webkit-scrollbar {
+  display: none;
 }
 
 .detail-swipe-dot {
@@ -1495,8 +1536,9 @@ body {
 
 /* 모바일 상세 하단 이동 영역 고정 사이즈 (파일 하단에서 최종 오버라이드) */
 @media (max-width: 600px) {
+  /* 도트 줄: 한 줄 유지 + 가로 스크롤(필요 시). 터치는 ::before로만 확대 */
   .detail-swipe-layout .detail-main {
-    padding-bottom: clamp(120px, 30vh + 72px, 320px);
+    padding-bottom: 108px;
   }
 
   .detail-swipe-bar {
@@ -1518,7 +1560,7 @@ body {
 
   .detail-swipe-dots {
     gap: 6px;
-    row-gap: 8px;
+    min-height: 44px;
     padding-block: 2px;
   }
 
@@ -1527,7 +1569,7 @@ body {
     height: 10px;
   }
 
-  /* 터치 영역 확대(줄 여러 줄이어도 ::before는 점마다 유지) */
+  /* 레이아웃 폭은 작은 점 기준, 터치 영역만 넓힘(줄바꿈 방지) */
   .detail-swipe-dot::before {
     content: "";
     position: absolute;
