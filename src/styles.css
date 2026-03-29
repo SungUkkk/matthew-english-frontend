@@ -1222,6 +1222,11 @@ body {
   color: var(--text);
 }
 
+/* 병합 카드: 요약 제목(볼드)과 본문 사이 한 줄 여백 */
+.detail-summary-card.detail-summary-card--merged .detail-summary-title {
+  margin-bottom: 1em;
+}
+
 .sentence-english {
   margin: 0 0 12px;
   font-size: 1rem;
@@ -1473,9 +1478,21 @@ body {
   border-color: #dc2626;
 }
 
-.saved-expressions-back {
-  display: inline-block;
+/* Link.detail-back 이 inline-block 되면 삼성 인터넷 등에서 텍스트이 상단 붙음 → inline-flex 유지 */
+a.saved-expressions-back.detail-back,
+.saved-expressions-back.detail-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-top: 8px;
+  margin-bottom: 16px;
+  text-decoration: none;
+  line-height: 1.25;
+  min-height: 44px;
+  padding: 10px 14px;
+  box-sizing: border-box;
+  vertical-align: middle;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Admin layout (기존 카드 스타일 유지) */

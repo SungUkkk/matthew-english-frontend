@@ -2,14 +2,35 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getBookmarks, removeBookmark, type BookmarkItem } from "../bookmarks";
 
+const SAVED_SORT_KEY = "savedExpressionsSort";
+type SavedSort = "recent" | "alpha";
+
+function readStoredSavedSort(): SavedSort {
+  try {
+    const s = sessionStorage.getItem(SAVED_SORT_KEY);
+    if (s === "recent" || s === "alpha") return s;
+  } catch {
+    /* ignore */
+  }
+  return "recent";
+}
+
 export const SavedExpressionsPage: React.FC = () => {
   const [items, setItems] = useState<BookmarkItem[]>([]);
   const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<"recent" | "alpha">("recent");
+  const [sort, setSort] = useState<SavedSort>(readStoredSavedSort);
 
   useEffect(() => {
     setItems(getBookmarks());
   }, []);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(SAVED_SORT_KEY, sort);
+    } catch {
+      /* ignore */
+    }
+  }, [sort]);
 
   const handleRemove = (expressionId: number) => {
     removeBookmark(expressionId);
@@ -51,7 +72,7 @@ export const SavedExpressionsPage: React.FC = () => {
             <br />
             기사 상세에서 표현 옆 ☆를 눌러 저장해 보세요.
           </p>
-          <Link to="/" className="detail-back">
+          <Link to="/" className="detail-back saved-expressions-back">
             ← 피드로 돌아가기
           </Link>
         </main>
