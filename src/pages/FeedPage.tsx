@@ -140,7 +140,7 @@ export const FeedPage: React.FC = () => {
           <h1 className="user-title">Article Feed</h1>
           <p className="user-subtitle">영문 기사로 영어 실력을 쌓아 보세요</p>
         </header>
-        <main className="user-main">
+        <main className="user-main feed-page-main">
           <div className="feed-loading">로딩 중...</div>
           {isProdApi && (
             <div className="feed-error-actions">
@@ -164,7 +164,7 @@ export const FeedPage: React.FC = () => {
         <header className="user-header">
           <h1 className="user-title">Article Feed</h1>
         </header>
-        <main className="user-main">
+        <main className="user-main feed-page-main">
           <div className="feed-error">{error}</div>
           <div className="feed-error-actions">
             <button
@@ -191,36 +191,39 @@ export const FeedPage: React.FC = () => {
         <h1 className="user-title">Article Feed</h1>
         <p className="user-subtitle">영문 기사로 영어 실력을 쌓아 보세요</p>
         <div className="feed-header-actions">
-          <div className="feed-header-left">
-            <button
-              type="button"
-              className="theme-toggle"
-              onClick={toggleTheme}
-            >
-              {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+          <button
+            type="button"
+            className="theme-toggle feed-header-pill"
+            onClick={toggleTheme}
+          >
+            {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+          </button>
+          <div className="zoom-controls feed-header-pill" aria-label="글자 크기 조절">
+            <button type="button" className="zoom-btn" onClick={decrease}>
+              A
             </button>
-            <div className="zoom-controls" aria-label="글자 크기 조절">
-              <button
-                type="button"
-                className="zoom-btn"
-                onClick={decrease}
-              >
-                A
-              </button>
-              <span className="zoom-level">{Math.round(zoom * 100)}%</span>
-              <button
-                type="button"
-                className="zoom-btn"
-                onClick={increase}
-              >
-                A
-              </button>
-            </div>
+            <span className="zoom-level">{Math.round(zoom * 100)}%</span>
+            <button type="button" className="zoom-btn" onClick={increase}>
+              A
+            </button>
           </div>
-          <Link to="/saved" className="feed-saved-btn">★ 저장한 표현</Link>
+          <Link to="/saved" className="feed-saved-btn feed-header-pill">
+            ★ 저장한 표현
+          </Link>
+          <div className="feed-header-count" aria-live="polite">
+            {trimmedQuery ? (
+              <span className="feed-search-count">
+                검색 결과 {filtered.length}개
+              </span>
+            ) : (
+              <span className="feed-search-count">
+                Total <strong>{articles.length}</strong>
+              </span>
+            )}
+          </div>
         </div>
       </header>
-      <main className="user-main">
+      <main className="user-main feed-page-main">
         {ttsError && (
           <div className="feed-tts-banner" role="alert">
             <span>{ttsError}</span>
@@ -229,38 +232,30 @@ export const FeedPage: React.FC = () => {
             </button>
           </div>
         )}
-        <div className="feed-search">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="feed-search-input"
-            placeholder="원문 내용으로 기사 검색"
-          />
-          {trimmedQuery && (
-            <span className="feed-search-count">
-              검색 결과 {filtered.length}개
-            </span>
-          )}
-          {!trimmedQuery && (
-            <span className="feed-search-count">
-              Total <strong>{articles.length}</strong>
-            </span>
-          )}
-        </div>
-        <div className="feed-sort">
-          <button
-            type="button"
-            className="feed-sort-btn"
-            onClick={() => setSortOrder((o) => (o === "newest" ? "oldest" : "newest"))}
-            aria-label={sortOrder === "newest" ? "오래된순으로 보기" : "최신순으로 보기"}
-          >
-            {sortOrder === "newest" ? "오래된순" : "최신순"}
-          </button>
+        <div className="feed-toolbar">
+          <div className="feed-sort-search-row">
+            <button
+              type="button"
+              className="feed-sort-btn"
+              onClick={() => setSortOrder((o) => (o === "newest" ? "oldest" : "newest"))}
+              aria-label={sortOrder === "newest" ? "오래된순으로 보기" : "최신순으로 보기"}
+            >
+              {sortOrder === "newest" ? "오래된순" : "최신순"}
+            </button>
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="feed-search-input"
+              placeholder="원문 내용으로 기사 검색"
+            />
+          </div>
         </div>
         <div className="feed-list">
           {filtered.length === 0 ? (
-            <div className="feed-empty">등록된 기사가 없습니다.</div>
+            <div className="feed-empty">
+              {trimmedQuery ? "검색 결과가 없습니다." : "등록된 기사가 없습니다."}
+            </div>
           ) : (
             filtered.map((a) => (
               <article

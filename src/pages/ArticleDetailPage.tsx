@@ -135,18 +135,22 @@ export const ArticleDetailPage: React.FC = () => {
     return (
       <div className="user-layout">
         <main className="user-main detail-main">
-          <button type="button" className="detail-back" onClick={() => navigate(-1)}>
-            ← 목록으로
-          </button>
-          <header className="detail-header">
-            <span className="detail-date">{formatStudyDate(article.study_date_ymd)}</span>
-          </header>
+          <div className="detail-nav-row detail-nav-row--single">
+            <button type="button" className="detail-back" onClick={() => navigate(-1)}>
+              ← 목록으로
+            </button>
+          </div>
           {!hasSummary && <p className="feed-empty">분석된 문장이 없습니다.</p>}
           {hasSummary && (
-            <section className="detail-summary-card">
-              <h3 className="detail-summary-title">요약</h3>
-              <p className="detail-summary-text">{summaryText}</p>
-            </section>
+            <div className="detail-card-merged">
+              <div className="detail-date-in-card">
+                <span className="detail-date">{formatStudyDate(article.study_date_ymd)}</span>
+              </div>
+              <section className="detail-summary-card detail-summary-card--merged">
+                <h3 className="detail-summary-title">요약</h3>
+                <p className="detail-summary-text">{summaryText}</p>
+              </section>
+            </div>
           )}
         </main>
       </div>
@@ -160,23 +164,19 @@ export const ArticleDetailPage: React.FC = () => {
   return (
     <div className="user-layout detail-swipe-layout">
       <main className="user-main detail-main">
-        <button type="button" className="detail-back" onClick={() => navigate(-1)}>
-          ← 목록으로
-        </button>
-
-        <header className="detail-header">
-          <div className="detail-header-row">
-            <span className="detail-date">{formatStudyDate(article.study_date_ymd)}</span>
-            <button
-              type="button"
-              className="detail-toc-toggle"
-              onClick={() => setShowToc((v) => !v)}
-              aria-expanded={showToc}
-            >
-              문장 목록 ({totalPages})
-            </button>
-          </div>
-        </header>
+        <div className="detail-nav-row">
+          <button type="button" className="detail-back" onClick={() => navigate(-1)}>
+            ← 목록으로
+          </button>
+          <button
+            type="button"
+            className="detail-toc-toggle"
+            onClick={() => setShowToc((v) => !v)}
+            aria-expanded={showToc}
+          >
+            문장 목록 ({totalPages})
+          </button>
+        </div>
 
         {showToc && (
           <div className="detail-toc-panel">
@@ -227,23 +227,27 @@ export const ArticleDetailPage: React.FC = () => {
           onTouchCancel={handleTouchEnd}
         >
           <div className="detail-sentence-wrap detail-sentence-wrap-single">
-            {isSummaryPage ? (
-              <section className="detail-summary-card">
-                <h3 className="detail-summary-title">요약</h3>
-                <p className="detail-summary-text">{summaryText}</p>
-              </section>
-            ) : currentSentence ? (
-              <SentenceCard
-                key={currentSentence.id}
-                sentence={currentSentence}
-                articleId={article.id}
-                articleTitle={formatStudyDate(article.study_date_ymd) || "기사"}
-                sentenceIndex={currentIndex}
-                bookmarkVersion={bookmarkVersion}
-                onBookmarkToggle={() => setBookmarkVersion((v) => v + 1)}
-              />
-            ) : null
-            }
+            <div className="detail-card-merged">
+              <div className="detail-date-in-card">
+                <span className="detail-date">{formatStudyDate(article.study_date_ymd)}</span>
+              </div>
+              {isSummaryPage ? (
+                <section className="detail-summary-card detail-summary-card--merged">
+                  <h3 className="detail-summary-title">요약</h3>
+                  <p className="detail-summary-text">{summaryText}</p>
+                </section>
+              ) : currentSentence ? (
+                <SentenceCard
+                  key={currentSentence.id}
+                  sentence={currentSentence}
+                  articleId={article.id}
+                  articleTitle={formatStudyDate(article.study_date_ymd) || "기사"}
+                  sentenceIndex={currentIndex}
+                  bookmarkVersion={bookmarkVersion}
+                  onBookmarkToggle={() => setBookmarkVersion((v) => v + 1)}
+                />
+              ) : null}
+            </div>
           </div>
         </div>
 
@@ -277,7 +281,18 @@ export const ArticleDetailPage: React.FC = () => {
                 key={i}
                 type="button"
                 className={`detail-swipe-dot ${i === currentIndex ? "active" : ""} ${hasSummary && i === totalPages - 1 ? "is-summary-dot" : ""}`}
-                onClick={() => setCurrentIndex(i)}
+                onPointerUp={(e) => {
+                  e.stopPropagation();
+                  /* 모바일: 첫 터치에서 click 이 누락·지연되는 경우 대비 */
+                  if (e.pointerType === "touch" || e.pointerType === "pen") {
+                    e.preventDefault();
+                    setCurrentIndex(i);
+                  }
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentIndex(i);
+                }}
                 aria-label={i < totalSentences ? `문장 ${i + 1}` : "요약"}
               />
             ))}
