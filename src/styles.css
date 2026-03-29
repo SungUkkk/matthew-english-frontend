@@ -1597,10 +1597,17 @@ body {
     font-size: 1.05rem;
   }
 
+  /* 많은 페이지: center + overflow 시 왼쪽(1페이지) 도트가 잘리는 현상 방지 */
   .detail-swipe-dots {
     gap: 6px;
     min-height: 44px;
     padding-block: 2px;
+    justify-content: flex-start;
+    width: 100%;
+    max-width: 100%;
+    align-self: stretch;
+    min-width: 0;
+    box-sizing: border-box;
   }
 
   .detail-swipe-dot {
