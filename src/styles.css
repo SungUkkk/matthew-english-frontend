@@ -1487,9 +1487,9 @@ a.saved-expressions-back.detail-back,
   margin-top: 8px;
   margin-bottom: 16px;
   text-decoration: none;
-  line-height: 1.25;
-  min-height: 44px;
-  padding: 10px 14px;
+  line-height: 1.35;
+  min-height: 0;
+  padding: 8px 13px;
   box-sizing: border-box;
   vertical-align: middle;
   -webkit-tap-highlight-color: transparent;
