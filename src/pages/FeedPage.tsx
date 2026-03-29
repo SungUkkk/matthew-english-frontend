@@ -210,17 +210,17 @@ export const FeedPage: React.FC = () => {
           <Link to="/saved" className="feed-saved-btn feed-header-pill">
             ★ 저장한 표현
           </Link>
-        </div>
-        <div className="feed-header-count" aria-live="polite">
-          {trimmedQuery ? (
-            <span className="feed-search-count">
-              검색 결과 {filtered.length}개
-            </span>
-          ) : (
-            <span className="feed-search-count">
-              Total <strong>{articles.length}</strong>
-            </span>
-          )}
+          <div className="feed-header-count" aria-live="polite">
+            {trimmedQuery ? (
+              <span className="feed-search-count">
+                검색 결과 {filtered.length}개
+              </span>
+            ) : (
+              <span className="feed-search-count">
+                Total <strong>{articles.length}</strong>
+              </span>
+            )}
+          </div>
         </div>
       </header>
       <main className="user-main feed-page-main">

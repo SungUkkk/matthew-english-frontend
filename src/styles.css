@@ -161,55 +161,60 @@ body {
     padding-right: 16px;
   }
 
+  /* 피드: PC와 동일하게 한 줄(필요 시 가로 스크롤), Total은 저장 버튼 바로 옆 */
   .feed-header-tools {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    align-items: stretch;
-    justify-content: stretch;
-    margin-top: 16px;
+    flex-wrap: nowrap;
+    gap: 4px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    justify-content: flex-start;
   }
 
-  .feed-header-tools .theme-toggle,
+  .feed-header-tools::-webkit-scrollbar {
+    display: none;
+  }
+
+  .feed-header-tools .theme-toggle {
+    padding: 0 8px;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+
   .feed-header-tools .zoom-controls {
-    width: 100%;
-    min-height: 40px;
-    justify-content: center;
+    padding: 0 5px;
+    gap: 2px;
+    flex-shrink: 0;
   }
 
   .feed-header-tools .feed-saved-btn {
-    grid-column: 1 / -1;
-    min-height: 40px;
-    box-shadow: 0 1px 6px rgba(37, 99, 235, 0.22);
+    padding: 0 8px;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+    white-space: nowrap;
   }
 
-  .feed-header-count {
-    justify-content: center;
-    text-align: center;
-    margin-top: 12px;
-    padding-top: 2px;
+  .feed-header-tools .feed-search-count {
+    font-size: 0.72rem;
   }
 
-  .user-subtitle {
-    margin-bottom: 2px;
-  }
-
-  /* 모바일: 정렬 → 검색 세로 스택, 검색창 전체 폭 */
+  /* 정렬 + 검색: 한 줄, 간격 최소, 검색이 남는 폭 채움 */
   .feed-sort-search-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
+    flex-wrap: nowrap;
+    gap: 4px;
+    align-items: center;
   }
 
   .feed-sort-search-row .feed-sort-btn {
-    align-self: flex-start;
+    padding: 6px 10px;
+    font-size: 0.8rem;
   }
 
   .feed-sort-search-row .feed-search-input {
     flex: 1 1 auto;
-    width: 100%;
-    max-width: 100%;
+    width: auto;
     min-width: 0;
+    max-width: none;
   }
 
   .feed-card {
@@ -257,9 +262,9 @@ body {
 .feed-header-tools {
   display: flex;
   flex-wrap: wrap;
-  align-items: stretch;
+  align-items: center;
   justify-content: flex-start;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
   margin-top: 14px;
 }
@@ -268,10 +273,44 @@ body {
   display: flex;
   align-items: center;
   min-height: 36px;
-  width: 100%;
-  margin-top: 10px;
+  flex: 0 0 auto;
+  width: auto;
+  margin: 0;
   padding-left: 2px;
   box-sizing: border-box;
+}
+
+.feed-header-tools .feed-header-count {
+  margin-left: 6px;
+  padding-left: 0;
+  flex-shrink: 0;
+}
+
+/* PC: 한 줄 고정 + 여백 축소로 Total까지 같은 행 */
+@media (min-width: 601px) {
+  .feed-header-tools {
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+
+  .feed-header-tools .theme-toggle {
+    padding: 0 10px;
+    font-size: 0.8125rem;
+  }
+
+  .feed-header-tools .zoom-controls {
+    padding: 0 6px;
+    gap: 3px;
+  }
+
+  .feed-header-tools .feed-saved-btn {
+    padding: 0 10px;
+    font-size: 0.8125rem;
+  }
+
+  .feed-header-tools .feed-search-count {
+    font-size: 0.78rem;
+  }
 }
 
 /* 테마 / 확대·축소 / 저장한 표현 — 동일 높이·왼쪽 정렬, 간격 8px 통일 */
