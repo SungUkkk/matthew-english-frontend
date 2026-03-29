@@ -18,6 +18,21 @@ function scrollDotRowIfNeeded(container: HTMLElement, dot: HTMLElement, margin =
   container.scrollLeft = Math.max(0, Math.min(next, maxScroll));
 }
 
+function scrollDotsRowForIndex(
+  container: HTMLElement,
+  track: HTMLElement,
+  currentIndex: number,
+) {
+  const el = track.children[currentIndex];
+  if (!(el instanceof HTMLElement)) return;
+  /* 1페이지: 항상 스크롤 시작(첫 도트+터치 영역 잘림 방지) */
+  if (currentIndex === 0) {
+    container.scrollLeft = 0;
+    return;
+  }
+  scrollDotRowIfNeeded(container, el);
+}
+
 export const ArticleDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -85,9 +100,8 @@ export const ArticleDetailPage: React.FC = () => {
     if (!container || totalPages === 0) return;
     const track = container.querySelector<HTMLElement>(".detail-swipe-dots-track");
     if (!track) return;
-    const el = track.children[currentIndex];
-    if (!(el instanceof HTMLElement)) return;
-    const run = () => scrollDotRowIfNeeded(container, el);
+    if (currentIndex >= track.children.length) return;
+    const run = () => scrollDotsRowForIndex(container, track, currentIndex);
     run();
     requestAnimationFrame(run);
   }, [currentIndex, totalPages]);
