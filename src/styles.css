@@ -1138,9 +1138,21 @@ body {
   transition: background 0.2s ease, transform 0.2s ease, width 0.2s ease;
 }
 
-.detail-swipe-dot:hover {
-  background: var(--text-muted);
-  transform: scale(1.15);
+/* 터치 기기에서 탭 후 :hover가 남아 비선택 도트가 진하게 보이는 현상 방지 */
+@media (hover: hover) and (pointer: fine) {
+  .detail-swipe-dot:hover {
+    background: var(--text-muted);
+    transform: scale(1.15);
+  }
+}
+
+.detail-swipe-dot:focus {
+  outline: none;
+}
+
+.detail-swipe-dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .detail-swipe-dot.active {

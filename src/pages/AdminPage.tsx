@@ -173,7 +173,7 @@ export const AdminPage: React.FC = () => {
   return (
     <div className="admin-layout">
       <header className="admin-header">
-        <h1>Article Analyzer - Admin</h1>
+        <h1>Article Feed - Admin</h1>
         <p>영문 원문과 스터디 날짜를 입력하면, 챗GPT 분석 결과가 DB에 자동 저장됩니다.</p>
       </header>
       <main className="admin-main">
