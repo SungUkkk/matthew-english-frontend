@@ -90,7 +90,7 @@ export const SavedExpressionsPage: React.FC = () => {
             기사 상세에서 표현 옆 ☆를 눌러 저장해 보세요.
           </p>
           <Link to="/" className="detail-back saved-expressions-back">
-            ← 피드로 돌아가기
+            ← 목록으로
           </Link>
         </main>
       </div>
@@ -103,7 +103,7 @@ export const SavedExpressionsPage: React.FC = () => {
         <h1 className="saved-expressions-title">저장한 표현 ({items.length})</h1>
         <div className="saved-expressions-top-actions">
           <Link to="/" className="detail-back saved-expressions-back">
-            ← 피드로 돌아가기
+            ← 목록으로
           </Link>
           <Link to="/saved/review" className="review-start-link">
             복습 시작
