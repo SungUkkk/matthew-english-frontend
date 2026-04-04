@@ -5,6 +5,31 @@ import { getBookmarks, toggleBookmark, type BookmarkItem } from "../bookmarks";
 
 const SWIPE_THRESHOLD = 50;
 
+const detailPageIndexStorageKey = (articleId: number) =>
+  `articleDetailPageIndex:${articleId}`;
+
+/** 새로고침 후에도 문장/요약 페이지 복구 (기사당, 탭 단위). URL ?sentence= 이 있으면 그 값이 우선 */
+function readStoredDetailPageIndex(articleId: number, maxIndex: number): number | null {
+  if (maxIndex < 0) return null;
+  try {
+    const raw = sessionStorage.getItem(detailPageIndexStorageKey(articleId));
+    if (raw == null || raw === "") return null;
+    const n = parseInt(raw, 10);
+    if (Number.isNaN(n)) return null;
+    return Math.max(0, Math.min(n, maxIndex));
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredDetailPageIndex(articleId: number, index: number) {
+  try {
+    sessionStorage.setItem(detailPageIndexStorageKey(articleId), String(index));
+  } catch {
+    /* 저장 공간/비공개 모드 등 */
+  }
+}
+
 /** 도트 줄(가로 스크롤)만 이동 — 활성 점(요약 S 포함)이 잘리지 않게 */
 function scrollDotRowIfNeeded(container: HTMLElement, dot: HTMLElement, margin = 10) {
   const cRect = container.getBoundingClientRect();
@@ -66,13 +91,22 @@ export const ArticleDetailPage: React.FC = () => {
         const data = await fetchArticle(numId);
         if (!cancelled) {
           setArticle(data);
+          const summaryText = data.summary?.trim() ?? "";
+          const hasSummary = summaryText.length > 0;
+          const totalPs = data.sentences.length + (hasSummary ? 1 : 0);
+          const maxIdx = Math.max(0, totalPs - 1);
+
           const sentencePage = searchParams.get("sentence");
           const pageNum = sentencePage != null ? parseInt(sentencePage, 10) : NaN;
+
+          let nextIndex = 0;
           if (!Number.isNaN(pageNum) && pageNum >= 1 && pageNum <= data.sentences.length) {
-            setCurrentIndex(pageNum - 1);
+            nextIndex = pageNum - 1;
           } else {
-            setCurrentIndex(0);
+            const stored = readStoredDetailPageIndex(numId, maxIdx);
+            if (stored !== null) nextIndex = stored;
           }
+          setCurrentIndex(nextIndex);
         }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "기사를 불러오지 못했습니다.");
@@ -94,6 +128,16 @@ export const ArticleDetailPage: React.FC = () => {
   const canGoPrev = totalPages > 0 && currentIndex > 0;
   const canGoNext = totalPages > 0 && currentIndex < totalPages - 1;
   const currentSentence = !isSummaryPage && totalSentences > 0 ? sentences[currentIndex] : null;
+
+  useEffect(() => {
+    if (!article || !id) return;
+    const rawId = id.trim();
+    const routeId = parseInt(rawId, 10);
+    if (Number.isNaN(routeId) || article.id !== routeId) return;
+    if (totalPages === 0) return;
+    const safeIndex = Math.max(0, Math.min(currentIndex, totalPages - 1));
+    writeStoredDetailPageIndex(article.id, safeIndex);
+  }, [article, id, currentIndex, totalPages]);
 
   useLayoutEffect(() => {
     const container = dotsRowRef.current;
