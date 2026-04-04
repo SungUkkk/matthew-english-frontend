@@ -101,9 +101,14 @@ export const SavedExpressionsPage: React.FC = () => {
     <div className="user-layout">
       <main className="user-main saved-expressions-main">
         <h1 className="saved-expressions-title">저장한 표현 ({items.length})</h1>
-        <Link to="/" className="detail-back saved-expressions-back">
-          ← 피드로 돌아가기
-        </Link>
+        <div className="saved-expressions-top-actions">
+          <Link to="/" className="detail-back saved-expressions-back">
+            ← 피드로 돌아가기
+          </Link>
+          <Link to="/saved/review" className="review-start-link">
+            복습 시작
+          </Link>
+        </div>
         <div className="saved-expressions-toolbar">
           <div className="saved-expressions-search">
             <input
