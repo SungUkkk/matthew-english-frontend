@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getBookmarks, type BookmarkItem } from "../bookmarks";
 
 const REVIEW_SIG_KEY = "reviewBookmarkSig";
 const REVIEW_ORDER_KEY = "reviewBookmarkOrder";
 const REVIEW_IDX_KEY = "reviewBookmarkIndex";
+const SWIPE_THRESHOLD = 50;
 
 function bookmarkSetSig(bookmarks: BookmarkItem[]): string {
   return [...new Set(bookmarks.map((b) => b.expressionId))]
@@ -89,6 +90,9 @@ export const ReviewExpressionsPage: React.FC = () => {
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [sessionReady, setSessionReady] = useState(false);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchDeltaX, setTouchDeltaX] = useState(0);
+  const suppressTapRef = useRef(false);
 
   useEffect(() => {
     const list = getBookmarks();
@@ -222,6 +226,30 @@ export const ReviewExpressionsPage: React.FC = () => {
 
   const canPrev = index > 0;
   const canNext = index < total - 1;
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    setTouchStartX(e.targetTouches[0].clientX);
+    setTouchDeltaX(0);
+    suppressTapRef.current = false;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (touchStartX === null) return;
+    setTouchDeltaX(e.targetTouches[0].clientX - touchStartX);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX === null) return;
+    // 상세 페이지와 동일 기준: 50px 이상 밀었을 때만 페이지 이동
+    if (touchDeltaX < -SWIPE_THRESHOLD && canNext) {
+      goNext();
+      suppressTapRef.current = true;
+    } else if (touchDeltaX > SWIPE_THRESHOLD && canPrev) {
+      goPrev();
+      suppressTapRef.current = true;
+    }
+    setTouchStartX(null);
+    setTouchDeltaX(0);
+  };
 
   return (
     <div className="user-layout">
@@ -247,7 +275,16 @@ export const ReviewExpressionsPage: React.FC = () => {
 
         <div
           className={`review-card ${flipped ? "review-card--flipped" : ""}`}
-          onClick={toggleFlip}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onClick={() => {
+            if (suppressTapRef.current) {
+              suppressTapRef.current = false;
+              return;
+            }
+            toggleFlip();
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
