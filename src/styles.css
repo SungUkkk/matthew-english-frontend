@@ -522,6 +522,13 @@ body {
   gap: 20px;
 }
 
+.feed-list-progress {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
 .feed-toolbar {
   width: 100%;
   margin-bottom: 16px;
