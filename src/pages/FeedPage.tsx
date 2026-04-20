@@ -368,11 +368,6 @@ export const FeedPage: React.FC = () => {
             ))
           )}
         </div>
-        {filtered.length > FEED_PAGE_SIZE && (
-          <div className="feed-list-progress" aria-live="polite">
-            {Math.min(visibleCount, filtered.length)} / {filtered.length}
-          </div>
-        )}
       </main>
       <button
         type="button"
