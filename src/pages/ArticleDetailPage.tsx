@@ -194,9 +194,9 @@ export const ArticleDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="user-layout">
-        <main className="user-main">
-          <div className="feed-loading">로딩 중...</div>
+      <div className="user-layout detail-page-layout">
+        <main className="user-main detail-main">
+          <div className="feed-loading">기사를 불러오는 중...</div>
         </main>
       </div>
     );
@@ -204,11 +204,11 @@ export const ArticleDetailPage: React.FC = () => {
 
   if (error || !article) {
     return (
-      <div className="user-layout">
-        <main className="user-main">
+      <div className="user-layout detail-page-layout">
+        <main className="user-main detail-main">
           <div className="feed-error">{error ?? "기사를 찾을 수 없습니다."}</div>
           <button type="button" className="detail-back" onClick={() => navigate(-1)}>
-            목록으로
+            ← 목록으로
           </button>
         </main>
       </div>
@@ -231,7 +231,7 @@ export const ArticleDetailPage: React.FC = () => {
                 <span className="detail-date">{formatStudyDate(article.study_date_ymd)}</span>
               </div>
               <section className="detail-summary-card detail-summary-card--merged">
-                <h3 className="detail-summary-title">요약</h3>
+                <span className="detail-summary-badge">Summary</span>
                 <p className="detail-summary-text">{summaryText}</p>
               </section>
             </div>
@@ -246,8 +246,20 @@ export const ArticleDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="user-layout detail-swipe-layout">
+    <div className="user-layout detail-swipe-layout detail-page-layout">
       <main className="user-main detail-main">
+        <div className="detail-progress-wrap detail-progress-wrap--compact" aria-hidden>
+          <div className="detail-progress-track">
+            <div
+              className="detail-progress-fill"
+              style={{ width: `${((currentIndex + 1) / totalPages) * 100}%` }}
+            />
+          </div>
+          <span className="detail-progress-label">
+            {currentIndex + 1} / {totalPages}
+          </span>
+        </div>
+
         <div className="detail-nav-row">
           <button type="button" className="detail-back" onClick={() => navigate(-1)}>
             ← 목록으로
@@ -264,6 +276,7 @@ export const ArticleDetailPage: React.FC = () => {
 
         {showToc && (
           <div className="detail-toc-panel">
+            <div className="detail-toc-panel-head">문장 바로가기</div>
             <ul className="detail-toc-list">
               {sentences.map((s, i) => {
                 const preview = s.english.length > 45 ? `${s.english.slice(0, 45)}…` : s.english;
@@ -317,7 +330,7 @@ export const ArticleDetailPage: React.FC = () => {
               </div>
               {isSummaryPage ? (
                 <section className="detail-summary-card detail-summary-card--merged">
-                  <h3 className="detail-summary-title">요약</h3>
+                  <span className="detail-summary-badge">Summary</span>
                   <p className="detail-summary-text">{summaryText}</p>
                 </section>
               ) : currentSentence ? (
@@ -432,10 +445,15 @@ function SentenceCard({
       <p className="sentence-english">{sentence.english}</p>
       <p className="sentence-korean">{sentence.korean}</p>
       {sentence.note_summary && (
-        <p className="sentence-note">{sentence.note_summary}</p>
+        <div className="sentence-note-wrap">
+          <span className="sentence-note-label">Note</span>
+          <p className="sentence-note">{sentence.note_summary}</p>
+        </div>
       )}
       {sentence.expressions.length > 0 && (
-        <ul className="sentence-expressions">
+        <>
+          <h4 className="detail-expressions-heading">핵심 표현</h4>
+          <ul className="sentence-expressions">
           {sentence.expressions.map((ex) => (
             <li key={ex.id} className="expression-item">
               <div className="expression-content">
@@ -456,7 +474,8 @@ function SentenceCard({
               </button>
             </li>
           ))}
-        </ul>
+          </ul>
+        </>
       )}
     </section>
   );

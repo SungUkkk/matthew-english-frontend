@@ -47,6 +47,20 @@ function compareArticlesForFeed(a: Article, b: Article, order: FeedSortOrder): n
   return order === "newest" ? nb - na : na - nb;
 }
 
+const FeedBrandHeader: React.FC<{
+  subtitle?: string;
+  children?: React.ReactNode;
+}> = ({ subtitle, children }) => (
+  <header className="user-header">
+    <div className="user-brand">
+      <span className="user-brand-badge">English Study</span>
+      <h1 className="user-title">Matthew English</h1>
+      {subtitle ? <p className="user-subtitle">{subtitle}</p> : null}
+    </div>
+    {children}
+  </header>
+);
+
 export const FeedPage: React.FC = () => {
   const restoreScrollTargetRef = useRef<number | null>(null);
   const [articles, setArticles] = useState<Article[]>([]);
@@ -67,7 +81,7 @@ export const FeedPage: React.FC = () => {
   const { zoom, increase, decrease } = useZoom();
 
   useEffect(() => {
-    document.title = "Article Feed";
+    document.title = "Matthew English";
   }, []);
 
   useEffect(() => () => stopArticleTtsPlayback(), []);
@@ -216,12 +230,9 @@ export const FeedPage: React.FC = () => {
   if (loading) {
     return (
       <div className="user-layout">
-        <header className="user-header">
-          <h1 className="user-title">Article Feed</h1>
-          <p className="user-subtitle">영문 기사로 영어 실력을 쌓아 보세요</p>
-        </header>
+        <FeedBrandHeader />
         <main className="user-main feed-page-main">
-          <div className="feed-loading">로딩 중...</div>
+          <div className="feed-loading">기사를 불러오는 중...</div>
           {isProdApi && (
             <div className="feed-error-actions">
               <button
@@ -241,9 +252,7 @@ export const FeedPage: React.FC = () => {
   if (error) {
     return (
       <div className="user-layout">
-        <header className="user-header">
-          <h1 className="user-title">Article Feed</h1>
-        </header>
+        <FeedBrandHeader subtitle="연결에 문제가 있습니다" />
         <main className="user-main feed-page-main">
           <div className="feed-error">{error}</div>
           <div className="feed-error-actions">
@@ -267,9 +276,7 @@ export const FeedPage: React.FC = () => {
 
   return (
     <div className="user-layout">
-      <header className="user-header">
-        <h1 className="user-title">Article Feed</h1>
-        <p className="user-subtitle">영문 기사로 영어 실력을 쌓아 보세요</p>
+      <FeedBrandHeader>
         <div className="feed-header-tools">
           <button
             type="button"
@@ -302,7 +309,7 @@ export const FeedPage: React.FC = () => {
             )}
           </div>
         </div>
-      </header>
+      </FeedBrandHeader>
       <main className="user-main feed-page-main">
         {ttsError && (
           <div className="feed-tts-banner" role="alert">

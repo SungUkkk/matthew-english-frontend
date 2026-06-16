@@ -126,7 +126,7 @@ export const ReviewExpressionsPage: React.FC = () => {
     }
     document.title = `복습 (${index + 1}/${total})`;
     return () => {
-      document.title = "Article Feed";
+      document.title = "Matthew English";
     };
   }, [sessionReady, total, index]);
 
@@ -252,9 +252,25 @@ export const ReviewExpressionsPage: React.FC = () => {
   };
 
   return (
-    <div className="user-layout">
+    <div className="user-layout review-page-layout">
       <main className="user-main review-expressions-main">
-        <h1 className="sr-only">표현 복습</h1>
+        <header className="review-page-header">
+          <span className="review-page-eyebrow">Flashcards</span>
+          <h1 className="review-page-title">표현 복습</h1>
+          <p className="review-page-subtitle">카드를 탭하거나 스와이프해 보세요</p>
+          <div className="review-progress-wrap" aria-hidden>
+            <div className="review-progress-track">
+              <div
+                className="review-progress-fill"
+                style={{ width: `${((index + 1) / total) * 100}%` }}
+              />
+            </div>
+            <span className="review-progress-label">
+              {index + 1} / {total}
+            </span>
+          </div>
+        </header>
+
         <div className="review-toolbar">
           <button
             type="button"
@@ -263,75 +279,73 @@ export const ReviewExpressionsPage: React.FC = () => {
           >
             ← 저장 목록
           </button>
-          <div className="review-toolbar-mid">
-            <button type="button" className="review-reshuffle-btn" onClick={handleReshuffle}>
-              다시 섞기
-            </button>
-            <span className="review-progress" aria-live="polite">
-              {index + 1} / {total}
-            </span>
+          <button type="button" className="review-reshuffle-btn" onClick={handleReshuffle}>
+            다시 섞기
+          </button>
+        </div>
+
+        <div className="review-card-shell">
+          <div
+            className={`review-card ${flipped ? "review-card--flipped" : ""}`}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onClick={() => {
+              if (suppressTapRef.current) {
+                suppressTapRef.current = false;
+                return;
+              }
+              toggleFlip();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggleFlip();
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label={flipped ? "뜻 보기 중, 탭하면 앞면" : "표현 보기 중, 탭하면 뜻"}
+          >
+            <div className="review-card-inner">
+              <div className="review-card-face review-card-front">
+                {current.sentenceEnglish.trim() ? (
+                  <p className="review-card-context">{current.sentenceEnglish}</p>
+                ) : null}
+                <p className="review-card-expression">{current.expression}</p>
+                {current.category ? (
+                  <span className="review-card-category">{current.category}</span>
+                ) : null}
+                <span className="review-card-hint">탭해서 뜻 보기</span>
+              </div>
+              <div className="review-card-face review-card-back">
+                <p className="review-card-expression review-card-expression--small">{current.expression}</p>
+                <p className="review-card-explanation">{current.explanation_ko}</p>
+                <span className="review-card-hint">탭해서 앞면</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div
-          className={`review-card ${flipped ? "review-card--flipped" : ""}`}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          onClick={() => {
-            if (suppressTapRef.current) {
-              suppressTapRef.current = false;
-              return;
-            }
-            toggleFlip();
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              toggleFlip();
-            }
-          }}
-          role="button"
-          tabIndex={0}
-          aria-label={flipped ? "뜻 보기 중, 탭하면 앞면" : "표현 보기 중, 탭하면 뜻"}
-        >
-          {!flipped ? (
-            <div className="review-card-face">
-              {current.sentenceEnglish.trim() ? (
-                <p className="review-card-context">{current.sentenceEnglish}</p>
-              ) : null}
-              <p className="review-card-expression">{current.expression}</p>
-              {current.category ? (
-                <span className="review-card-category">{current.category}</span>
-              ) : null}
-              <span className="review-card-hint">탭해서 뜻 보기</span>
-            </div>
-          ) : (
-            <div className="review-card-face review-card-face--back">
-              <p className="review-card-expression review-card-expression--small">{current.expression}</p>
-              <p className="review-card-explanation">{current.explanation_ko}</p>
-              <span className="review-card-hint">탭해서 앞면</span>
-            </div>
-          )}
-        </div>
-
-        <div className="review-nav">
-          <button type="button" className="review-nav-btn" onClick={goPrev} disabled={!canPrev} aria-label="이전 카드">
-            ← 이전
-          </button>
-          <button
-            type="button"
-            className="review-flip-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleFlip();
-            }}
-          >
-            {flipped ? "앞면" : "뜻 보기"}
-          </button>
-          <button type="button" className="review-nav-btn" onClick={goNext} disabled={!canNext} aria-label="다음 카드">
-            다음 →
-          </button>
+        <div className="review-bottom-bar">
+          <div className="review-nav">
+            <button type="button" className="review-nav-btn" onClick={goPrev} disabled={!canPrev} aria-label="이전 카드">
+              ←
+            </button>
+            <button
+              type="button"
+              className="review-flip-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleFlip();
+              }}
+            >
+              {flipped ? "앞면" : "뜻 보기"}
+            </button>
+            <button type="button" className="review-nav-btn" onClick={goNext} disabled={!canNext} aria-label="다음 카드">
+              →
+            </button>
+          </div>
         </div>
       </main>
     </div>
