@@ -300,7 +300,7 @@ export const FeedPage: React.FC = () => {
           <div className="feed-header-count" aria-live="polite">
             {trimmedQuery ? (
               <span className="feed-search-count">
-                검색 결과 {filtered.length}개
+                검색 {filtered.length}
               </span>
             ) : (
               <span className="feed-search-count">
@@ -334,7 +334,7 @@ export const FeedPage: React.FC = () => {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="feed-search-input"
-              placeholder="원문 내용으로 기사 검색"
+              placeholder="기사 검색"
             />
           </div>
         </div>
