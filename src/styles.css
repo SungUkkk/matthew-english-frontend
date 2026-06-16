@@ -196,11 +196,11 @@ body {
   }
 
   .detail-card-merged .detail-sentence {
-    padding: 14px 18px 22px;
+    padding: 14px 18px 16px;
   }
 
   .detail-card-merged .expression-item {
-    padding: 16px 18px;
+    padding: 14px 16px;
   }
 
   .detail-summary-card.detail-summary-card--merged {
@@ -1279,7 +1279,7 @@ body {
   border-radius: 0;
   box-shadow: none;
   background: transparent;
-  padding: 16px 20px 24px;
+  padding: 16px 20px 18px;
 }
 
 .detail-sentence-header {
@@ -1307,7 +1307,7 @@ body {
 }
 
 .detail-expressions-heading {
-  margin: 14px 0 8px;
+  margin: 7px 0 4px;
   font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -1574,7 +1574,7 @@ body {
 }
 
 .sentence-korean {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   font-size: 0.95rem;
   line-height: 1.5;
   color: var(--text-muted);
@@ -1583,8 +1583,8 @@ body {
 }
 
 .sentence-note-wrap {
-  margin: 0 0 10px;
-  padding: 10px 12px;
+  margin: 0 0 5px;
+  padding: 8px 10px;
   border-radius: var(--radius-sm);
   background: var(--bg-muted);
   border: 1px solid var(--border-subtle);
@@ -1592,7 +1592,7 @@ body {
 
 .sentence-note-label {
   display: inline-block;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -1613,7 +1613,7 @@ body {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 11px;
+  gap: 9px;
 }
 
 .sentence-expressions li {
@@ -1630,7 +1630,7 @@ body {
   flex-direction: row;
   align-items: flex-start;
   gap: 12px;
-  padding: 16px 18px;
+  padding: 14px 16px;
   border-radius: var(--radius-sm);
   background: var(--bg-muted);
   border: 1px solid var(--border-subtle);
@@ -1638,7 +1638,7 @@ body {
 }
 
 .detail-card-merged .expression-item {
-  padding: 18px 20px;
+  padding: 15px 18px;
 }
 
 .expression-item:hover {
