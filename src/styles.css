@@ -2034,7 +2034,7 @@ body {
   flex-direction: column;
   gap: 12px;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   text-align: center;
   padding: 28px 24px 24px;
   border-radius: var(--radius-lg);
