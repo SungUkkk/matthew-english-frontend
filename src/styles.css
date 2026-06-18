@@ -2043,7 +2043,9 @@ body {
   box-shadow: var(--shadow-md);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .review-card-front::before,
