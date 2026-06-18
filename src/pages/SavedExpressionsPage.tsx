@@ -26,11 +26,14 @@ function readStoredSavedSearchQuery(): string {
   }
 }
 
+const SCROLL_TOP_THRESHOLD = 8;
+
 export const SavedExpressionsPage: React.FC = () => {
   const [items, setItems] = useState<BookmarkItem[]>([]);
   const [query, setQuery] = useState(readStoredSavedSearchQuery);
   const [sort, setSort] = useState<SavedSort>(readStoredSavedSort);
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     setItems(getBookmarks());
@@ -96,6 +99,7 @@ export const SavedExpressionsPage: React.FC = () => {
       if (nearBottom && visibleCount < filtered.length) {
         setVisibleCount((current) => Math.min(current + ITEMS_PER_PAGE, filtered.length));
       }
+      setShowScrollTop(window.scrollY > SCROLL_TOP_THRESHOLD);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -191,6 +195,14 @@ export const SavedExpressionsPage: React.FC = () => {
             </li>
           ))}
         </ul>
+        <button
+          type="button"
+          className={`feed-scroll-top ${showScrollTop ? "feed-scroll-top--visible" : ""}`}
+          onClick={() => window.scrollTo({ top: 0, left: 0, behavior: "smooth" })}
+          aria-label="맨 위로"
+        >
+          ↑
+        </button>
       </main>
     </div>
   );
