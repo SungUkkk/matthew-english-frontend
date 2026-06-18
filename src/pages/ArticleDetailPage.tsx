@@ -231,7 +231,6 @@ export const ArticleDetailPage: React.FC = () => {
                 <span className="detail-date">{formatStudyDate(article.study_date_ymd)}</span>
               </div>
               <section className="detail-summary-card detail-summary-card--merged">
-                <span className="detail-summary-badge">Summary</span>
                 <p className="detail-summary-text">{summaryText}</p>
               </section>
             </div>
@@ -330,7 +329,6 @@ export const ArticleDetailPage: React.FC = () => {
               </div>
               {isSummaryPage ? (
                 <section className="detail-summary-card detail-summary-card--merged">
-                  <span className="detail-summary-badge">Summary</span>
                   <p className="detail-summary-text">{summaryText}</p>
                 </section>
               ) : currentSentence ? (

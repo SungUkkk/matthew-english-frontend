@@ -4,6 +4,8 @@ import { getBookmarks, removeBookmark, type BookmarkItem } from "../bookmarks";
 
 const SAVED_SORT_KEY = "savedExpressionsSort";
 const SAVED_SEARCH_QUERY_KEY = "savedExpressionsSearchQuery";
+const ITEMS_PER_PAGE = 20;
+const LOAD_MORE_THRESHOLD = 240;
 type SavedSort = "recent" | "alpha";
 
 function readStoredSavedSort(): SavedSort {
@@ -28,6 +30,7 @@ export const SavedExpressionsPage: React.FC = () => {
   const [items, setItems] = useState<BookmarkItem[]>([]);
   const [query, setQuery] = useState(readStoredSavedSearchQuery);
   const [sort, setSort] = useState<SavedSort>(readStoredSavedSort);
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
   useEffect(() => {
     setItems(getBookmarks());
@@ -47,7 +50,12 @@ export const SavedExpressionsPage: React.FC = () => {
     } catch {
       /* ignore */
     }
+    setVisibleCount(ITEMS_PER_PAGE);
   }, [query]);
+
+  useEffect(() => {
+    setVisibleCount(ITEMS_PER_PAGE);
+  }, [sort]);
 
   const handleRemove = (expressionId: number) => {
     removeBookmark(expressionId);
@@ -78,6 +86,20 @@ export const SavedExpressionsPage: React.FC = () => {
     const bTime = b.createdAt ?? 0;
     return bTime - aTime;
   });
+
+  const visibleItems = filtered.slice(0, visibleCount);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const nearBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - LOAD_MORE_THRESHOLD;
+      if (nearBottom && visibleCount < filtered.length) {
+        setVisibleCount((current) => Math.min(current + ITEMS_PER_PAGE, filtered.length));
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [visibleCount, filtered.length]);
 
   if (items.length === 0) {
     return (
@@ -142,7 +164,7 @@ export const SavedExpressionsPage: React.FC = () => {
           </div>
         </div>
         <ul className="saved-expressions-list">
-          {filtered.map((b) => (
+          {visibleItems.map((b) => (
             <li key={b.expressionId} className="saved-expression-item">
               <div className="saved-expression-content">
                 <strong className="saved-expression-word">{b.expression}</strong>
